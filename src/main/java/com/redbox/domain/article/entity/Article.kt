@@ -1,43 +1,28 @@
-package com.redbox.domain.article.entity;
+package com.redbox.domain.article.entity
 
-import com.redbox.domain.article.dto.UpdateArticleRequest;
-import com.redbox.domain.user.entity.User;
-import com.redbox.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.redbox.domain.article.dto.UpdateArticleRequest
+import com.redbox.global.entity.BaseEntity
+import jakarta.persistence.*
 
-@Getter
 @Entity
-@Table(name = "articles")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Article extends BaseEntity {
-
+@Table(name = "$articles")
+class Article(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "article_id")
-    private Long id;
+    var id: Long? = null,
 
     @Column(name = "user_id")
-    private Long userId;
+    var userId: Long,
 
-    private String subject;
-    private String articleUrl;
-    private String source;
+    var subject: String,
+    var articleUrl: String,
+    var source: String
+) : BaseEntity() {
 
-    @Builder
-    public Article(Long userId, String subject, String articleUrl, String source) {
-        this.userId = userId;
-        this.subject = subject;
-        this.articleUrl = articleUrl;
-        this.source = source;
-    }
-
-    public void updateArticle(UpdateArticleRequest request) {
-        this.subject = request.getSubject();
-        this.articleUrl = request.getUrl();
-        this.source = request.getSource();
+    fun updateArticle(request: UpdateArticleRequest) {
+        this.subject = request.subject
+        this.articleUrl = request.url
+        this.source = request.source
     }
 }
