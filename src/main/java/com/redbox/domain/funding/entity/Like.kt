@@ -1,36 +1,28 @@
-package com.redbox.domain.funding.entity;
+package com.redbox.domain.funding.entity
 
-import com.redbox.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.redbox.global.entity.BaseTimeEntity
+import jakarta.persistence.*
 
-@Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "likes")
-public class Like extends BaseTimeEntity {
-
+class Like(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id; // 좋아요 ID
+    var id: Long? = null,
 
-    private Long fundingId; // 게시글 ID
-    private Long userId; // 사용자 ID
+    var fundingId: Long,
+    var userId: Long,
 
     @Column(nullable = false)
-    private boolean isLiked;
+    var isLiked: Boolean
 
-    @Builder
-    public Like(Long fundingId, Long userId, boolean isLiked) {
-        this.fundingId = fundingId;
-        this.userId = userId;
-        this.isLiked = isLiked;
+) : BaseTimeEntity() {
+
+    fun falseLike() {
+        this.isLiked = false
     }
-
-    public void falseLike(){this.isLiked = false;}
-    public void trueLike(){this.isLiked = true;}
-
+    fun trueLike() {
+        this.isLiked = true
+    }
 }
