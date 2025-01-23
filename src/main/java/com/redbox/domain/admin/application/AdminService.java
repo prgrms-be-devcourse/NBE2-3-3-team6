@@ -7,11 +7,11 @@ import com.redbox.domain.admin.dto.AdminStatsResponse;
 import com.redbox.domain.admin.exception.InvalidApproveStatusException;
 import com.redbox.domain.attach.dto.AttachFileResponse;
 import com.redbox.domain.donation.repository.DonationGroupRepository;
+import com.redbox.domain.funding.entity.Funding;
+import com.redbox.domain.funding.exception.FundingNotFoundException;
 import com.redbox.domain.redcard.repository.RedcardRepository;
-import com.redbox.domain.request.entity.Request;
-import com.redbox.domain.request.entity.RequestStatus;
-import com.redbox.domain.request.exception.RequestNotFoundException;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.entity.FundingStatus;
+import com.redbox.domain.funding.repository.FundingRepository;
 import com.redbox.domain.user.repository.UserRepository;
 import com.redbox.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,70 +25,70 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
     private final UserService userService;
     private final UserRepository userRepository;
     private final RedcardRepository redcardRepository;
     private final DonationGroupRepository donationGroupRepository;
 
     // 요청 게시글 리스트 조회
-    public List<AdminListResponse> getRequests() {
+    public List<AdminListResponse> getFundings() {
         // 요청중 리스트만 추출
-        List<Request> requestList = requestRepository.findByRequestStatus(RequestStatus.REQUEST);
-        return requestList.stream().map(AdminListResponse::new).collect(Collectors.toList());
+        List<Funding> fundingList = fundingRepository.findByFundingStatus(FundingStatus.REQUEST);
+        return fundingList.stream().map(AdminListResponse::new).collect(Collectors.toList());
     }
 
     // 요청 게시글 승인 or 거절
     @Transactional
-    public void approveRequest(Long requestId, AdminApproveRequest adminApproveRequest) {
+    public void approveRequest(Long fundingId, AdminApproveRequest adminApproveRequest) {
 
-        Request changeRequest = requestRepository.findById(requestId).orElseThrow(RequestNotFoundException::new);
+        Funding changeFunding = fundingRepository.findById(fundingId).orElseThrow(FundingNotFoundException::new);
         String approveStatus = adminApproveRequest.getApproveStatus();
 
         switch (approveStatus) {
             case "승인" :
-                changeRequest.approve();
-                changeRequest.inProgress();
+                changeFunding.approve();
+                changeFunding.inProgress();
                 break;
             case "거절" :
-                changeRequest.reject();
-                changeRequest.rejectProgress();
+                changeFunding.reject();
+                changeFunding.rejectProgress();
                 break;
             default:
                 throw new InvalidApproveStatusException();
         }
 
-        requestRepository.save(changeRequest);
+        fundingRepository.save(changeFunding);
     }
 
     // 요청 게시글 상세조회
-    public AdminDetailResponse getRequestDetails(Long requestId) {
-        Request request = requestRepository.findById(requestId).orElseThrow(RequestNotFoundException::new);
+    public AdminDetailResponse getFundingDetails(Long fundingId) {
+        Funding funding = fundingRepository.findById(fundingId).orElseThrow(FundingNotFoundException::new);
         return new AdminDetailResponse(
-                request.getRequestId(),
-                request.getRequestTitle(),
-                request.getUserName(),
-                request.getCreatedAt().toLocalDate(),
-                request.getDonationStartDate(),
-                request.getDonationEndDate(),
-                request.getTargetAmount(),
-                request.getRequestStatus().getText(),
-                request.getRequestHits(),
-                request.getRequestContent(),
-                request.getAttachFiles()
+                funding.getFundingId(),
+                funding.getFundingTitle(),
+                funding.getUserName(),
+                funding.getCreatedAt().toLocalDate(),
+                funding.getDonationStartDate(),
+                funding.getDonationEndDate(),
+                funding.getTargetAmount(),
+                funding.getFundingStatus().getText(),
+                funding.getFundingHits(),
+                funding.getFundingContent(),
+                funding.getAttachFiles()
                         .stream().map(AttachFileResponse::new).toList()
         );
     }
 
-    public List<AdminListResponse> getHotBoards() {
-        return requestRepository.findTop5RequestWithLikeCount().stream()
+    public List<AdminListResponse> getHotFundings() {
+        return fundingRepository.findTop5FundingWithLikeCount().stream()
                 .map(AdminListResponse::new).toList();
     }
 
-    public List<AdminListResponse> getLikedBoards() {
+    public List<AdminListResponse> getLikedFundings() {
         Long userId = userService.getCurrentUserId();
 
-        return requestRepository.findLikedTop5RequestsByUserId(userId).stream()
+        return fundingRepository.findLikedTop5FundingsByUserId(userId).stream()
                 .map(AdminListResponse::new).toList();
     }
 
@@ -96,13 +96,13 @@ public class AdminService {
         Integer userCount = userRepository.countActiveUser();
         Integer redcardCountInRedbox = redcardRepository.countAllInRedbox();
         Integer sumDonation = donationGroupRepository.sumDonationAmountInRedbox();
-        Integer requestCount = requestRepository.countByRequestStatus(RequestStatus.REQUEST);
+        Integer fundingCount = fundingRepository.countByFundingStatus(FundingStatus.REQUEST);
 
         return new AdminStatsResponse(
                 userCount != null ? userCount : 0,
                 redcardCountInRedbox != null ? redcardCountInRedbox : 0,
                 sumDonation != null ? sumDonation : 0,
-                requestCount != null ? requestCount : 0
+                fundingCount != null ? fundingCount : 0
         );
     }
 }

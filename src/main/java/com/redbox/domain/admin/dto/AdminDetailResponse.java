@@ -1,7 +1,6 @@
 package com.redbox.domain.admin.dto;
 
 import com.redbox.domain.attach.dto.AttachFileResponse;
-import com.redbox.domain.request.entity.Request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

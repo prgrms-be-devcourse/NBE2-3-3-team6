@@ -1,7 +1,6 @@
 package com.redbox.global.util.scheduler;
 
 import com.redbox.domain.donation.application.RequestDonationService;
-import com.redbox.domain.request.application.RequestService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

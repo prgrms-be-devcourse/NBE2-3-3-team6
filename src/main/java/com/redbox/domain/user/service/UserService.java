@@ -2,10 +2,9 @@ package com.redbox.domain.user.service;
 
 import com.redbox.domain.auth.dto.CustomUserDetails;
 import com.redbox.domain.donation.repository.DonationGroupRepository;
-import com.redbox.domain.request.dto.ListResponse;
-import com.redbox.domain.request.dto.RequestFilter;
-import com.redbox.domain.request.entity.Request;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.dto.ListResponse;
+import com.redbox.domain.funding.entity.Funding;
+import com.redbox.domain.funding.repository.FundingRepository;
 import com.redbox.domain.user.dto.*;
 import com.redbox.domain.user.entity.User;
 import com.redbox.domain.user.exception.DuplicateEmailException;
@@ -41,7 +40,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final DonationGroupRepository donationGroupRepository;
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
 
     // 현재 로그인한 사용자의 전체 정보 조회
     public User getCurrentUser() {
@@ -227,7 +226,7 @@ public class UserService {
     public PageResponse<ListResponse> getRequests(int page, int size) {
         Pageable pageable = PageRequest.of(page -1, size, Sort.by("createdAt").descending());
 
-        Page<Request> boardPage = requestRepository.findAllByUserIdAndNotDropStatus(getCurrentUserId(), pageable);
+        Page<Funding> boardPage = fundingRepository.findAllByUserIdAndNotDropStatus(getCurrentUserId(), pageable);
         Page<ListResponse> responsePage = boardPage.map(ListResponse::new);
 
         return new PageResponse<>(responsePage);

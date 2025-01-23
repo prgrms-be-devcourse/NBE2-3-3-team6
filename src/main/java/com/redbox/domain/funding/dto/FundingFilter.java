@@ -1,4 +1,4 @@
-package com.redbox.domain.request.dto;
+package com.redbox.domain.funding.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-public class RequestFilter {
+public class FundingFilter {
     private int page;
     private int size;
     private Filter sort;

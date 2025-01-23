@@ -14,7 +14,7 @@ public class FileAttachStrategyFactory {
     public FileAttachStrategyFactory(List<FileAttachStrategy> strategyList) {
         strategies = Map.of(
                 Category.NOTICE, findStrategy(strategyList, NoticeFileStrategy.class),
-                Category.REQUEST, findStrategy(strategyList, RequestFileStrategy.class)
+                Category.FUNDING, findStrategy(strategyList, RequestFileStrategy.class)
         );
     }
 

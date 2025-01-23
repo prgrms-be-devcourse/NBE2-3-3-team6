@@ -3,7 +3,7 @@ package com.redbox.domain.dashboard.service;
 import com.redbox.domain.dashboard.dto.DashboardResponse;
 import com.redbox.domain.dashboard.dto.UserInfo;
 import com.redbox.domain.dashboard.dto.DonationStats;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.repository.FundingRepository;
 import com.redbox.domain.user.entity.User;
 import com.redbox.domain.user.service.UserService;
 import com.redbox.domain.donation.application.DonationStatsService;
@@ -18,7 +18,7 @@ public class DashboardService {
 
     private final UserService userService;
     private final DonationStatsService donationStatsService;
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
 
     public DashboardResponse getDashboardData() {
 
@@ -37,7 +37,7 @@ public class DashboardService {
         LocalDate lastDonationDate = donationStatsService.getLastDonationDate(userId);
 
         // 진행 중인 요청 게시글 수 조회
-        int inProgressRequests = requestRepository.countInProgressRequestsByUserId(userId);
+        int inProgressRequests = fundingRepository.countInProgressFundingsByUserId(userId);
 
         // 등급 계산
         String grade = calculateGrade(totalDonatedCards);

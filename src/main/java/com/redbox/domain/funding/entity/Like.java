@@ -1,4 +1,4 @@
-package com.redbox.domain.request.entity;
+package com.redbox.domain.funding.entity;
 
 import com.redbox.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -17,15 +17,15 @@ public class Like extends BaseTimeEntity {
     @Column(name = "id")
     private Long id; // 좋아요 ID
 
-    private Long requestId; // 게시글 ID
+    private Long fundingId; // 게시글 ID
     private Long userId; // 사용자 ID
 
     @Column(nullable = false)
     private boolean isLiked;
 
     @Builder
-    public Like(Long requestId, Long userId, boolean isLiked) {
-        this.requestId = requestId;
+    public Like(Long fundingId, Long userId, boolean isLiked) {
+        this.fundingId = fundingId;
         this.userId = userId;
         this.isLiked = isLiked;
     }

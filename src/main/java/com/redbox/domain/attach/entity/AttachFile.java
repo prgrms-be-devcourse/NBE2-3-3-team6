@@ -1,8 +1,8 @@
 package com.redbox.domain.attach.entity;
 
 import com.redbox.domain.attach.exception.NullAttachFileException;
+import com.redbox.domain.funding.entity.Funding;
 import com.redbox.domain.notice.entity.Notice;
-import com.redbox.domain.request.entity.Request;
 import com.redbox.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,7 +28,7 @@ public class AttachFile extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
-    private Request request;
+    private Funding funding;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
@@ -38,10 +38,10 @@ public class AttachFile extends BaseEntity {
     private String newFilename;
 
     @Builder
-    public AttachFile(Category category, Notice notice, Request request, String originalFilename, String newFilename) {
+    public AttachFile(Category category, Notice notice, Funding funding, String originalFilename, String newFilename) {
         this.category = category;
         this.notice = notice;
-        this.request = request;
+        this.funding = funding;
         this.originalFilename = originalFilename;
         this.newFilename = newFilename;
     }
@@ -52,8 +52,8 @@ public class AttachFile extends BaseEntity {
         this.notice = notice;
     }
     @SuppressWarnings("lombok")
-    public void setRequest(Request request) {
-        this.request = request;
+    public void setFunding(Funding funding) {
+        this.funding = funding;
     }
 
     public void validateNull() {
@@ -69,7 +69,7 @@ public class AttachFile extends BaseEntity {
     public boolean belongToPost(Long postId) {
         return switch (this.category) {
             case NOTICE -> isNoticeFile(postId);
-            case REQUEST -> isRequestFile(postId);
+            case FUNDING -> isRequestFile(postId);
         };
     }
 
@@ -79,6 +79,6 @@ public class AttachFile extends BaseEntity {
     }
 
     private boolean isRequestFile(Long postId) {
-        return this.request != null;
+        return this.funding != null;
     }
 }
