@@ -1,107 +1,111 @@
-package com.redbox.domain.funding.entity;
+package com.redbox.domain.funding.entity
 
-import com.redbox.domain.attach.entity.AttachFile;
-import com.redbox.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.redbox.domain.attach.entity.AttachFile
+import com.redbox.global.entity.BaseEntity
+import jakarta.persistence.*
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-@Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "fundings")
-public class Funding extends BaseEntity {
-
+class Funding (
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "funding_id")
-    private Long fundingId; // 게시글 아이디
+    @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "funding_id")
+    var fundingId: Long? = null,
 
-    private Long userId;
-    private String userName;
-    private String fundingTitle;
-    private String fundingContent;
-    private int targetAmount;
-    private int currentAmount;
-
-    @Enumerated(EnumType.STRING)
-    private FundingStatus fundingStatus;
+    var userId: Long? = null,
+    var userName: String? = null,
+    var fundingTitle: String? = null,
+    var fundingContent: String? = null,
+    var targetAmount: Int = 0,
+    var currentAmount: Int = 0,
 
     @Enumerated(EnumType.STRING)
-    private FundingStatus progress;
+    var fundingStatus: FundingStatus,
+    @Enumerated(EnumType.STRING)
+    var progress: FundingStatus,
 
-    private LocalDate fundingDate;
-    private LocalDate donationStartDate;
-    private LocalDate donationEndDate;
+    var fundingDate: LocalDate? = null,
+    var donationStartDate: LocalDate? = null,
+    var donationEndDate: LocalDate? = null,
 
-    private String fundingAttachFile; // 파일 로컬에 저장
+    var fundingAttachFile: String? = null,
 
     @Enumerated(EnumType.STRING)
-    private Priority priority; // 중요도
+    var priority: Priority? = null,
 
-    private int fundingHits;
-    private int fundingLikes; // 좋아요 수
+    var fundingHits: Int = 0,
+    var fundingLikes: Int = 0,
 
-    @OneToMany(mappedBy = "funding", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AttachFile> attachFiles = new ArrayList<>();
+    @OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var attachFiles: MutableList<AttachFile?> = mutableListOf()
 
-    @Builder
-    public Funding(Long userId, String userName, String fundingTitle, String fundingContent, int targetAmount, int currentAmount, FundingStatus fundingStatus, FundingStatus progress, LocalDate donationStartDate, LocalDate donationEndDate, LocalDate fundingDate, String fundingAttachFile, Priority priority, int fundingHits, int fundingLikes) {
-        this.userId = userId;
-        this.userName = userName;
-        this.fundingTitle = fundingTitle;
-        this.fundingContent = fundingContent;
-        this.targetAmount = targetAmount;
-        this.currentAmount = currentAmount;
-        this.fundingStatus = fundingStatus;
-        this.progress = progress;
-        this.donationStartDate = donationStartDate;
-        this.donationEndDate = donationEndDate;
-        this.fundingDate = LocalDate.now();
-        this.fundingAttachFile = fundingAttachFile;
-        this.priority = priority;
-        this.fundingHits = fundingHits;
-        this.fundingLikes = fundingLikes;
+) : BaseEntity() {
+    fun addAttachFiles(attachFile: AttachFile) {
+        attachFile.validateNull()
+        if (attachFile.isDuplicateIn(this.attachFiles)) return
+
+        attachFiles.add(attachFile)
+        attachFile.funding = this
     }
 
-    public void addAttachFiles(AttachFile attachFile) {
-        attachFile.validateNull();
-        if (attachFile.isDuplicateIn(this.attachFiles)) return;
+    fun removeAttachFiles(attachFile: AttachFile) {
+        attachFile.validateNull()
 
-        this.attachFiles.add(attachFile);
-        attachFile.setFunding(this);
+        attachFiles.remove(attachFile)
+        attachFile.funding = null
     }
 
-    public void removeAttachFiles(AttachFile attachFile) {
-        attachFile.validateNull();
-
-        this.attachFiles.remove(attachFile);
-        attachFile.setFunding(null);
+    fun updateFunding(
+        title: String?,
+        content: String?,
+        DonationStartDate: LocalDate?,
+        DonationEndDate: LocalDate?,
+        targetAmount: Int
+    ) {
+        this.fundingTitle = title
+        this.fundingContent = content
+        this.donationStartDate = DonationStartDate
+        this.donationEndDate = DonationEndDate
+        this.targetAmount = targetAmount
     }
 
-    public void updateFunding(String title, String content, LocalDate DonationStartDate, LocalDate DonationEndDate, int targetAmount) {
-        this.fundingTitle = title;
-        this.fundingContent = content;
-        this.donationStartDate = DonationStartDate;
-        this.donationEndDate = DonationEndDate;
-        this.targetAmount = targetAmount;
+    fun approve() {
+        this.fundingStatus = FundingStatus.APPROVE
     }
 
-    public void approve() {this.fundingStatus = FundingStatus.APPROVE;}
-    public void reject() {this.fundingStatus = FundingStatus.REJECT;}
-    public void drop() {this.fundingStatus = FundingStatus.DROP;}
+    fun reject() {
+        this.fundingStatus = FundingStatus.REJECT
+    }
 
-    public void expired() {this.progress = FundingStatus.EXPIRED;}
-    public void inProgress() {this.progress = FundingStatus.IN_PROGRESS;}
-    public void rejectProgress() {this.progress = FundingStatus.REJECT;}
-    public void dropProgress() {this.progress = FundingStatus.DROP;}
+    fun drop() {
+        this.fundingStatus = FundingStatus.DROP
+    }
 
-    public void incrementHits() {this.fundingHits = fundingHits + 1;}
-    public void incrementLikes() {this.fundingLikes = fundingLikes + 1;}
-    public void decrementLikes() {this.fundingLikes = fundingLikes - 1;}
+    fun expired() {
+        this.progress = FundingStatus.EXPIRED
+    }
+
+    fun inProgress() {
+        this.progress = FundingStatus.IN_PROGRESS
+    }
+
+    fun rejectProgress() {
+        this.progress = FundingStatus.REJECT
+    }
+
+    fun dropProgress() {
+        this.progress = FundingStatus.DROP
+    }
+
+    fun incrementHits() {
+        this.fundingHits++
+    }
+
+    fun incrementLikes() {
+        this.fundingLikes++
+    }
+
+    fun decrementLikes() {
+        this.fundingLikes--
+    }
 }
