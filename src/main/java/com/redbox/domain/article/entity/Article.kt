@@ -5,7 +5,7 @@ import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "$articles")
+@Table(name = "articles")
 class Article(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
