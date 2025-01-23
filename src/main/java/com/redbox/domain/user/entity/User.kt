@@ -1,92 +1,68 @@
-package com.redbox.domain.user.entity;
+package com.redbox.domain.user.entity
 
-import com.redbox.domain.user.exception.EmptyPasswordException;
-import com.redbox.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
+import com.redbox.domain.user.exception.EmptyPasswordException
+import com.redbox.global.entity.BaseEntity
+import jakarta.persistence.*
+import org.springframework.util.StringUtils
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-@Getter
 @Entity
 @Table(name = "users")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
-
+class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    var id: Long? = null,
 
-    private String email;
-    private String password;
-    private String name;
-    private LocalDate birth;
-    private String phoneNumber;
+    var email: String,
+    var password: String,
+    var name: String,
+    var birth: LocalDate? = null,
+    var phoneNumber: String,
 
-    private String roadAddress;
-    private String extraAddress;
-    private String detailAddress;
-
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    var roadAddress: String? = null,
+    var extraAddress: String? = null,
+    var detailAddress: String? = null,
 
     @Enumerated(EnumType.STRING)
-    private RoleType roleType;
+    var gender: Gender,
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    var roleType: RoleType,
 
-    private LocalDateTime lastLoginAt;
+    @Enumerated(EnumType.STRING)
+    var status: Status,
+) : BaseEntity() {
 
-    @Builder
-    public User(Long id, String email, String password, String name, LocalDate birth, String phoneNumber, String roadAddress, String extraAddress, String detailAddress, Gender gender, RoleType roleType, Status status) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.birth = birth;
-        this.phoneNumber = phoneNumber;
-        this.roadAddress = roadAddress;
-        this.extraAddress = extraAddress;
-        this.detailAddress = detailAddress;
-        this.gender = gender;
-        this.roleType = roleType;
-        this.status = status;
-    }
-
-    public void changePassword(String newPassword) {
+    fun changePassword(newPassword: String) {
         if (!StringUtils.hasText(newPassword)) {
-            throw new EmptyPasswordException();
+            throw EmptyPasswordException()
         }
-        this.password = newPassword;
+        this.password = newPassword
     }
 
     // 회원 탈퇴 상태 변경
-    public void inactive() { this.status = Status.INACTIVE; }
-
-    public void changeName(String name) {
-        this.name = name;
+    fun inactive() {
+        this.status = Status.INACTIVE
     }
 
-    public void changePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    fun changeName(name: String) {
+        this.name = name
     }
 
-    public void changeRoadAddress(String roadAddress) {
-        this.roadAddress = roadAddress;
+    fun changePhoneNumber(phoneNumber: String) {
+        this.phoneNumber = phoneNumber
     }
 
-    public void changeExtraAddress(String extraAddress) {
-        this.extraAddress = extraAddress;
+    fun changeRoadAddress(roadAddress: String) {
+        this.roadAddress = roadAddress
     }
 
-    public void changeDetailAddress(String detailAddress) {
-        this.detailAddress = detailAddress;
+    fun changeExtraAddress(extraAddress: String) {
+        this.extraAddress = extraAddress
+    }
+
+    fun changeDetailAddress(detailAddress: String) {
+        this.detailAddress = detailAddress
     }
 }
