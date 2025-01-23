@@ -3,22 +3,24 @@ package com.redbox.domain.donation.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
 @Entity
 @Table(name = "donation_details")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DonationDetail {
+class DonationDetail(
+    donationGroupId: Long,
+    redcardId: Long
+) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "donation_detail_id")
-    private Long id;
-    private Long donationGroupId;
-    private Long redcardId;
+    var id: Long? = null
+        private set
 
-    @Builder
-    public DonationDetail(Long donationGroupId, Long redcardId) {
-        this.donationGroupId = donationGroupId;
-        this.redcardId = redcardId;
-    }
+    @Column(name = "donation_group_id", nullable = false)
+    var donationGroupId: Long = donationGroupId
+        private set
+
+    @Column(name = "redcard_id", nullable = false)
+    var redcardId: Long = redcardId
+        private set
 }
