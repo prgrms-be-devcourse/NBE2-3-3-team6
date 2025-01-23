@@ -43,6 +43,7 @@ class AttachFile (
         return when (this.category) {
             Category.NOTICE -> isNoticeFile(postId)
             Category.FUNDING -> isFundingFile(postId)
+
         }
     }
 
@@ -55,3 +56,4 @@ class AttachFile (
         return this.funding != null
     }
 }
+
