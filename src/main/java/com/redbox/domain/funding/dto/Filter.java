@@ -1,4 +1,4 @@
-package com.redbox.domain.request.dto;
+package com.redbox.domain.funding.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

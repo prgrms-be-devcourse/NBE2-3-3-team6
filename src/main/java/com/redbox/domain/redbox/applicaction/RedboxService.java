@@ -11,7 +11,7 @@ import com.redbox.domain.redbox.dto.RedboxStatsResponse;
 import com.redbox.domain.redcard.entity.OwnerType;
 import com.redbox.domain.redcard.entity.Redcard;
 import com.redbox.domain.redcard.repository.RedcardRepository;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.repository.FundingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +20,17 @@ import java.util.List;
 @Service
 public class RedboxService extends AbstractDonationService {
 
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
     private final RedcardRepository redcardRepository;
 
 
     public RedboxService(DonationServiceDependencies dependencies,
-                         RequestRepository requestRepository,
+                         FundingRepository fundingRepository,
                          RedcardRepository redcardRepository
                          ) {
         super(dependencies); // 부모 클래스 생성자 호출
 
-        this.requestRepository = requestRepository;
+        this.fundingRepository = fundingRepository;
         this.redcardRepository = redcardRepository;
     }
 
@@ -45,7 +45,7 @@ public class RedboxService extends AbstractDonationService {
         helpedPatients = (helpedPatients != null) ? helpedPatients : 0;
 
         // 진행 중인 요청 게시글 수 조회
-        int inProgressRequests = requestRepository.countAllInProgressRequests();
+        int inProgressRequests = fundingRepository.countAllInProgressFundings();
 
         return new RedboxStatsResponse(totalDonatedCards, helpedPatients, inProgressRequests);
     }

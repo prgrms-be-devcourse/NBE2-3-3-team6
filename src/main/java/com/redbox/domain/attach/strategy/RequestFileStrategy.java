@@ -2,12 +2,9 @@ package com.redbox.domain.attach.strategy;
 
 import com.redbox.domain.attach.entity.AttachFile;
 import com.redbox.domain.attach.entity.Category;
-import com.redbox.domain.notice.entity.Notice;
-import com.redbox.domain.notice.exception.NoticeNotFoundException;
-import com.redbox.domain.notice.repository.NoticeRepository;
-import com.redbox.domain.request.entity.Request;
-import com.redbox.domain.request.exception.RequestNotFoundException;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.entity.Funding;
+import com.redbox.domain.funding.exception.FundingNotFoundException;
+import com.redbox.domain.funding.repository.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,16 +12,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RequestFileStrategy implements FileAttachStrategy {
 
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
 
     @Override
     public AttachFile attach(Long postId, String originalFilename, String newFilename) {
-        Request request = requestRepository.findById(postId)
-                .orElseThrow(RequestNotFoundException::new);
+        Funding funding = fundingRepository.findById(postId)
+                .orElseThrow(FundingNotFoundException::new);
 
         return AttachFile.builder()
-                .category(Category.REQUEST)
-                .request(request)
+                .category(Category.FUNDING)
+                .funding(funding)
                 .originalFilename(originalFilename)
                 .newFilename(newFilename)
                 .build();

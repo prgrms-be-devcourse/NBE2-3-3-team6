@@ -1,4 +1,4 @@
-package com.redbox.domain.request.entity;
+package com.redbox.domain.funding.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

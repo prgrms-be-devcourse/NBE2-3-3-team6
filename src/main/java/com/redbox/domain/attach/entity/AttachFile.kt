@@ -2,7 +2,7 @@ package com.redbox.domain.attach.entity
 
 import com.redbox.domain.attach.exception.NullAttachFileException
 import com.redbox.domain.notice.entity.Notice
-import com.redbox.domain.request.entity.Request
+import com.redbox.domain.funding.entity.Funding
 import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
 
@@ -18,8 +18,8 @@ class AttachFile (
     var category: Category,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id")
-    var request: Request? = null,
+    @JoinColumn(name = "funding_id")
+    var funding: Funding? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
@@ -42,7 +42,8 @@ class AttachFile (
     fun belongToPost(postId: Long): Boolean {
         return when (this.category) {
             Category.NOTICE -> isNoticeFile(postId)
-            Category.REQUEST -> isRequestFile(postId)
+            Category.FUNDING -> isFundingFile(postId)
+
         }
     }
 
@@ -51,7 +52,8 @@ class AttachFile (
         return this.notice != null
     }
 
-    private fun isRequestFile(postId: Long): Boolean {
-        return this.request != null
+    private fun isFundingFile(postId: Long): Boolean {
+        return this.funding != null
     }
 }
+

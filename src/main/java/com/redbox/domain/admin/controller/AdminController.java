@@ -19,37 +19,37 @@ public class AdminController {
     private final AdminService adminService;
 
     // 요청 게시글 리스트 조회
-    @GetMapping("/admin/requests")
-    public ResponseEntity<List<AdminListResponse>> getRequests() {
-        List<AdminListResponse> response = adminService.getRequests();
+    @GetMapping("/admin/fundings")
+    public ResponseEntity<List<AdminListResponse>> getFundings() {
+        List<AdminListResponse> response = adminService.getFundings();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // 요청 게시글 승인
-    @PostMapping("/admin/requests/{requestId}")
+    @PostMapping("/admin/fundings/{requestId}")
     public ResponseEntity<Void> approveRequest(
-            @PathVariable Long requestId,
+            @PathVariable Long fundingId,
             @RequestBody AdminApproveRequest request
     ) {
-        adminService.approveRequest(requestId, request);
+        adminService.approveRequest(fundingId, request);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     // 요청 게시글 상세조회(게시글 상세조회와 동일)
-    @GetMapping("/admin/requests/{requestId}")
-    public ResponseEntity<AdminDetailResponse> detailRequest(@PathVariable Long requestId) {
-        AdminDetailResponse detailResponse = adminService.getRequestDetails(requestId);
+    @GetMapping("/admin/fundings/{fundingId}")
+    public ResponseEntity<AdminDetailResponse> detailFunding(@PathVariable Long fundingId) {
+        AdminDetailResponse detailResponse = adminService.getFundingDetails(fundingId);
         return ResponseEntity.ok(detailResponse);
     }
 
     @GetMapping("/admin/hot")
-    public ResponseEntity<List<AdminListResponse>> getHotBoards() {
-        return ResponseEntity.ok(adminService.getHotBoards());
+    public ResponseEntity<List<AdminListResponse>> getHotFundings() {
+        return ResponseEntity.ok(adminService.getHotFundings());
     }
 
     @GetMapping("/admin/like")
-    public ResponseEntity<List<AdminListResponse>> getLikedBoards() {
-        return ResponseEntity.ok(adminService.getLikedBoards());
+    public ResponseEntity<List<AdminListResponse>> getLikedFundings() {
+        return ResponseEntity.ok(adminService.getLikedFundings());
     }
 
     @GetMapping("/admin/statistics")

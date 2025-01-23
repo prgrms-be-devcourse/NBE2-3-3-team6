@@ -1,6 +1,6 @@
 package com.redbox.domain.admin.dto;
 
-import com.redbox.domain.request.entity.Request;
+import com.redbox.domain.funding.entity.Funding;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -14,11 +14,11 @@ public class AdminListResponse {
     private LocalDate date; // 작성일
     private String status; // 게시글 승인 상태
 
-    public AdminListResponse(Request request) {
-        this.id = request.getRequestId();
-        this.title = request.getRequestTitle();
-        this.author = request.getUserName();
-        this.date = request.getRequestDate();
-        this.status = request.getRequestStatus().getText();
+    public AdminListResponse(Funding funding) {
+        this.id = funding.getFundingId();
+        this.title = funding.getFundingTitle();
+        this.author = funding.getUserName();
+        this.date = funding.getFundingDate();
+        this.status = funding.getFundingStatus().getText();
     }
 }

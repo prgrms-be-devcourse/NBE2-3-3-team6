@@ -1,8 +1,7 @@
 package com.redbox.domain.user.controller;
 
-import com.redbox.domain.request.application.RequestService;
-import com.redbox.domain.request.dto.ListResponse;
-import com.redbox.domain.request.dto.RequestFilter;
+import com.redbox.domain.funding.application.FundingService;
+import com.redbox.domain.funding.dto.ListResponse;
 import com.redbox.domain.user.dto.*;
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest;
 import com.redbox.domain.redcard.service.RedcardService;
@@ -20,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
     private final RedcardService redCardService;
-    private final RequestService requestService;
+    private final FundingService fundingService;
 
     @PostMapping("/auth/email/verification-code")
     public ResponseEntity<Void> sendVerificationCode(@RequestBody @Valid VerificationCodeRequest request) {

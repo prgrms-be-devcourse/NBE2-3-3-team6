@@ -8,13 +8,13 @@ import com.redbox.domain.donation.entity.DonationType;
 import com.redbox.domain.donation.exception.DonationDuplicateException;
 import com.redbox.domain.donation.exception.DonationGroupNotFoundException;
 import com.redbox.domain.donation.exception.DonationNotSelfException;
+import com.redbox.domain.funding.entity.Funding;
 import com.redbox.domain.redcard.entity.Redcard;
 import com.redbox.domain.redcard.service.RedcardService;
-import com.redbox.domain.request.application.RequestService;
-import com.redbox.domain.request.entity.Request;
-import com.redbox.domain.request.entity.RequestStatus;
-import com.redbox.domain.request.exception.RequestNotFoundException;
-import com.redbox.domain.request.repository.RequestRepository;
+import com.redbox.domain.funding.application.FundingService;
+import com.redbox.domain.funding.entity.FundingStatus;
+import com.redbox.domain.funding.exception.FundingNotFoundException;
+import com.redbox.domain.funding.repository.FundingRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,27 +25,27 @@ import java.util.List;
 @Service
 public class RequestDonationService extends AbstractDonationService {
 
-    private final RequestService requestService;
+    private final FundingService fundingService;
     private final RedcardService redcardService;
-    private final RequestRepository requestRepository;
+    private final FundingRepository fundingRepository;
 
-    public RequestDonationService(DonationServiceDependencies dependencies, RequestService requestService, RequestRepository requestRepository) {
+    public RequestDonationService(DonationServiceDependencies dependencies, FundingService fundingService, FundingRepository fundingRepository) {
         super(dependencies);
-        this.requestService = requestService;
+        this.fundingService = fundingService;
         this.redcardService = dependencies.getRedcardService();
-        this.requestRepository = requestRepository;
+        this.fundingRepository = fundingRepository;
     }
 
     // 게시글 만료 처리
     @Transactional
     public void updateExpiredRequests() {
         LocalDate today = LocalDate.now();
-        List<Request> expiredRequests = requestRepository.findByDonationEndDateBeforeAndProgressNot(today, RequestStatus.EXPIRED);
-        for (Request request : expiredRequests) {
-            donationConfirm(request.getRequestId(), request.getUserId());
-            request.expired();
+        List<Funding> expiredFundings = fundingRepository.findByDonationEndDateBeforeAndProgressNot(today, FundingStatus.EXPIRED);
+        for (Funding funding : expiredFundings) {
+            donationConfirm(funding.getFundingId(), funding.getUserId());
+            funding.expired();
         }
-        requestRepository.saveAll(expiredRequests);
+        fundingRepository.saveAll(expiredFundings);
     }
 
     @Transactional
@@ -119,8 +119,8 @@ public class RequestDonationService extends AbstractDonationService {
         saveDonationDetails(redcardList, donationGroupId);
     }
 
-    public void validateDuplicateDonate(long requestId, long donorId) {
-        boolean exists = requestRepository.existsByRequestIdAndUserId(requestId, donorId);
+    public void validateDuplicateDonate(long fundingId, long donorId) {
+        boolean exists = fundingRepository.existsByFundingIdAndUserId(fundingId, donorId);
 
         if (exists) {
             throw new DonationDuplicateException();
@@ -148,17 +148,17 @@ public class RequestDonationService extends AbstractDonationService {
 
     @Override
     protected void validateReceiver(long receiverId) {
-        boolean exists = requestService.existsRequestById(receiverId);
+        boolean exists = fundingService.existsFundingById(receiverId);
         if (!exists) {
-            throw new RequestNotFoundException();
+            throw new FundingNotFoundException();
         }
     }
 
     @Override
     public void validateSelfDonate(long receiverId, long donorId ) {
-        Request request = requestRepository.findById(receiverId).orElseThrow(RequestNotFoundException::new);
+        Funding funding = fundingRepository.findById(receiverId).orElseThrow(FundingNotFoundException::new);
 
-        if (request.getUserId().equals(donorId)) {
+        if (funding.getUserId().equals(donorId)) {
             throw new DonationNotSelfException();
         }
     }
