@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.1.0'
 }
 
 group = 'com'
@@ -83,6 +85,7 @@ dependencies {
 
     // Jackson Java 8에서 도입된 날짜와 시간 API(JSR-310)를 JSON으로 직렬화/역직렬화
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 tasks.named('test') {
