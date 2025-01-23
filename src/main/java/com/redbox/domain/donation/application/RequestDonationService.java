@@ -119,8 +119,8 @@ public class RequestDonationService extends AbstractDonationService {
         saveDonationDetails(redcardList, donationGroupId);
     }
 
-    public void validateDuplicateDonate(long requestId, long donorId) {
-        boolean exists = fundingRepository.existsByFundingIdAndUserId(requestId, donorId);
+    public void validateDuplicateDonate(long fundingId, long donorId) {
+        boolean exists = fundingRepository.existsByFundingIdAndUserId(fundingId, donorId);
 
         if (exists) {
             throw new DonationDuplicateException();
