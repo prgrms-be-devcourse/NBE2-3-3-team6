@@ -49,6 +49,7 @@ class Redcard(
         this.ownerType = ownerType
     }
 
+    // TODO: 테스트를 위해 추가된 toString() 메서드 (나중에 상의 후 제거)
     override fun toString(): String {
         return "Redcard(userId=$userId, donationDate=$donationDate, serialNumber='$serialNumber', hospitalName='$hospitalName', redcardStatus=$redcardStatus, ownerType=$ownerType)"
     }

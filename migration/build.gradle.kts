@@ -67,6 +67,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.mockk:mockk:1.13.5") // MockK 추가
 
     // Thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
