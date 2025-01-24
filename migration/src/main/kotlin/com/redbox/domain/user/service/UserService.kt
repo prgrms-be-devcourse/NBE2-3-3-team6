@@ -1,8 +1,11 @@
 package com.redbox.domain.user.service
 
+import com.redbox.domain.user.dto.SignupRequest
+import com.redbox.domain.user.dto.SignupResponse
 import com.redbox.domain.user.dto.ValidateVerificationCodeRequest
 import com.redbox.domain.user.dto.VerificationCodeRequest
 import com.redbox.domain.user.exception.DuplicateEmailException
+import com.redbox.domain.user.exception.EmailNotVerifiedException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
 import com.redbox.domain.user.repository.UserRepository
 import com.redbox.global.util.RandomCodeGenerator
@@ -35,6 +38,8 @@ class UserService(
         return templateEngine.process(templateName, context)
     }
 
+    private fun encodePassword(password: String): String = passwordEncoder.encode(password)
+
     fun sendVerificationCode(request: VerificationCodeRequest) {
         // 이미 회원가입이 된 이메일인지 확인
         if (isDuplicatedEmail(request.email)) {
@@ -57,5 +62,27 @@ class UserService(
         } else {
             false
         }
+    }
+
+    @Transactional
+    fun signup(request: SignupRequest): SignupResponse {
+        // 이메일 인증이 완료되었는지 확인
+        if (!request.isVerified()) {
+            throw EmailNotVerifiedException()
+        }
+
+        // 이미 회원가입이 된 이메일인지 확인
+        if (isDuplicatedEmail(request.email)) {
+            throw DuplicateEmailException()
+        }
+
+        val encodedPassword = encodePassword(request.password)
+        val user = SignupRequest.toEntity(request, encodedPassword)
+        // 처음 회원가입 시 인증된 상태가 아니므로 직접 설정
+        user.setCreatedBy(request.email)
+        user.setUpdatedBy(request.email)
+
+        userRepository.save(user)
+        return SignupResponse(user.email, user.name)
     }
 }
