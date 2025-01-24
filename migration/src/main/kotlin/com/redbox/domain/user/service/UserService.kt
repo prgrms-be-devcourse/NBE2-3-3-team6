@@ -1,11 +1,13 @@
 package com.redbox.domain.user.service
 
+import com.redbox.domain.user.dto.ValidateVerificationCodeRequest
 import com.redbox.domain.user.dto.VerificationCodeRequest
 import com.redbox.domain.user.exception.DuplicateEmailException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
 import com.redbox.domain.user.repository.UserRepository
 import com.redbox.global.util.RandomCodeGenerator
 import com.redbox.global.util.email.EmailSender
+import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.thymeleaf.context.Context
@@ -43,5 +45,17 @@ class UserService(
         val content: String = createEmailContent("verification-code-email", "verificationCode", verificationCode)
         emailSender.sendMail(request.email, subject, content)
         emailVerificationCodeRepository.save(request.email, verificationCode)
+    }
+
+    @Transactional
+    fun validateVerificationCode(request: ValidateVerificationCodeRequest): Boolean {
+        val verificationCode = emailVerificationCodeRepository.getVerificationCodeByEmail(request.email)
+
+        return if (verificationCode == request.verificationCode) {
+            emailVerificationCodeRepository.deleteByEmail(request.email)
+            true
+        } else {
+            false
+        }
     }
 }

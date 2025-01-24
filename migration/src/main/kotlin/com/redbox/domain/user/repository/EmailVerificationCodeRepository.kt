@@ -15,4 +15,12 @@ class EmailVerificationCodeRepository(
 
         valueOperations.set(key, value, expireDuration)
     }
+
+    fun getVerificationCodeByEmail(key: String): String? {
+        return stringRedisTemplate.opsForValue()[key]
+    }
+
+    fun deleteByEmail(key: String) {
+        stringRedisTemplate.delete(key)
+    }
 }
