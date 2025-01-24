@@ -1,5 +1,7 @@
 package com.redbox.domain.user.controller
 
+import com.redbox.domain.user.dto.SignupRequest
+import com.redbox.domain.user.dto.SignupResponse
 import com.redbox.domain.user.dto.ValidateVerificationCodeRequest
 import com.redbox.domain.user.dto.VerificationCodeRequest
 import com.redbox.domain.user.service.UserService
@@ -35,5 +37,13 @@ class UserController(
             return ResponseEntity.ok().build()
         }
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build()
+    }
+
+    @PostMapping("/auth/signup")
+    fun signup(
+        @RequestBody @Valid request: SignupRequest
+    ): ResponseEntity<SignupResponse> {
+        val response = userService.signup(request)
+        return ResponseEntity.ok(response)
     }
 }

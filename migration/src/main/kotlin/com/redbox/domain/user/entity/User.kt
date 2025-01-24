@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
-class User private constructor(
+class User (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -18,11 +18,11 @@ class User private constructor(
     val email: String,
     password: String,
     name: String,
-    val birth: LocalDate,
+    birth: LocalDate?,
     phoneNumber: String,
-    roadAddress: String,
-    extraAddress: String,
-    detailAddress: String,
+    roadAddress: String?,
+    extraAddress: String?,
+    detailAddress: String?,
 
     @Enumerated(EnumType.STRING)
     val gender: Gender,
@@ -39,16 +39,19 @@ class User private constructor(
     var name: String = name
         protected set
 
+    var birth: LocalDate? = birth
+        protected set
+
     var phoneNumber: String = phoneNumber
         protected set
 
-    var roadAddress: String = roadAddress
+    var roadAddress: String? = roadAddress
         protected set
 
-    var extraAddress: String = extraAddress
+    var extraAddress: String? = extraAddress
         protected set
 
-    var detailAddress: String = detailAddress
+    var detailAddress: String? = detailAddress
         protected set
 
     @Enumerated(EnumType.STRING)
