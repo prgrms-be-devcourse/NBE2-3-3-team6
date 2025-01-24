@@ -1,28 +1,27 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import com.redbox.domain.redcard.entity.Redcard;
-import com.redbox.domain.redcard.entity.RedcardStatus;
-import lombok.Getter;
+import com.redbox.domain.redcard.entity.Redcard
+import com.redbox.domain.redcard.entity.RedcardStatus
+import java.time.LocalDate
 
-import java.time.LocalDate;
-
-@Getter
-public class RedcardResponse {
-
-    private final Long id;
-    private final LocalDate donationDate;
-    private final String cardNumber;
-    private final String hospitalName;
-    private final LocalDate registrationDate;
-    private final String status;
-
-    public RedcardResponse(Redcard redcard) {
-        this.id = redcard.getId();
-        this.donationDate = redcard.getDonationDate();
-        this.cardNumber = redcard.getSerialNumber();
-        this.hospitalName = redcard.getHospitalName();
-        this.registrationDate = redcard.getCreatedAt().toLocalDate();
-        this.status = redcard.getRedcardStatus().equals(RedcardStatus.AVAILABLE) ?
-                "available" : redcard.getRedcardStatus().equals(RedcardStatus.USED) ? "used" : "pending";
-    }
+data class RedcardResponse(
+    val id: Long,
+    val donationDate: LocalDate,
+    val cardNumber: String,
+    val hospitalName: String,
+    val registrationDate: LocalDate,
+    val status: String
+) {
+    constructor(redcard: Redcard) : this(
+        id = redcard.id,
+        donationDate = redcard.donationDate,
+        cardNumber = redcard.serialNumber,
+        hospitalName = redcard.hospitalName,
+        registrationDate = redcard.createdAt.toLocalDate(),
+        status = when (redcard.redcardStatus!!) {
+            RedcardStatus.AVAILABLE -> "available"
+            RedcardStatus.USED -> "used"
+            RedcardStatus.PENDING -> "pending"
+        }
+    )
 }

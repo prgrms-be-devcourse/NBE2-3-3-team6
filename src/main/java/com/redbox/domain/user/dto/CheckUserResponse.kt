@@ -1,11 +1,6 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class CheckUserResponse {
-    private Long userId;
-    private String name;
-}
+data class CheckUserResponse (
+    val userId: Long,
+    val name: String
+)

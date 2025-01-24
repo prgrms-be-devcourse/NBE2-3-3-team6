@@ -1,15 +1,9 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import lombok.*;
-
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateUserInfoRequest {
-
-    private String name;
-    private String phoneNumber;
-    private String roadAddress;
-    private String extraAddress;
-    private String detailAddress;
-}
+data class UpdateUserInfoRequest(
+    val name: String,
+    val phoneNumber: String,
+    val roadAddress: String,
+    val extraAddress: String,
+    val detailAddress: String
+)

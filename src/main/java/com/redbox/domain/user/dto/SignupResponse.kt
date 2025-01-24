@@ -1,12 +1,6 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class SignupResponse {
-
-    private String email;
-    private String userName;
-}
+data class SignupResponse (
+    val email: String,
+    val userName: String
+)

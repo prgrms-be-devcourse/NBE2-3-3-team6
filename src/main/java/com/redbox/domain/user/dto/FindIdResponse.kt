@@ -1,12 +1,6 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+data class FindIdResponse (
+    val email: String
+)
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class FindIdResponse {
-    private String email;
-}

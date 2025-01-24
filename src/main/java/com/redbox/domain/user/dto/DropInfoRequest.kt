@@ -1,16 +1,8 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class DropInfoRequest {
-
-    @NotBlank(message = "비밀번호를 입력해주세요.")
-    private String password;
-
-}
+data class DropInfoRequest(
+    @field:NotBlank(message = "비밀번호를 입력해주세요.")
+    val password: String
+)

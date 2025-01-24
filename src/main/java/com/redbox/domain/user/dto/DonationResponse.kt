@@ -1,22 +1,20 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import com.redbox.domain.donation.entity.DonationGroup;
-import lombok.Getter;
+import com.redbox.domain.donation.entity.DonationGroup
+import java.time.LocalDate
 
-import java.time.LocalDate;
-
-@Getter
-public class DonationResponse {
-
-    private final String receiverName;
-    private final int donationAmount;
-    private final LocalDate donationDate;
-    private final String donationMessage;
-
-    public DonationResponse(DonationGroup donationGroup, String receiverName) {
-        this.receiverName = receiverName;
-        this.donationAmount = donationGroup.getDonationAmount();
-        this.donationDate = donationGroup.getDonationDate();
-        this.donationMessage = donationGroup.getDonationMessage();
+data class DonationResponse(
+    val receiverName: String,
+    val donationAmount: Int,
+    val donationDate: LocalDate,
+    val donationMessage: String
+) {
+    companion object {
+        fun from(donationGroup: DonationGroup, receiverName: String) = DonationResponse(
+            receiverName = receiverName,
+            donationAmount = donationGroup.donationAmount,
+            donationDate = donationGroup.donationDate,
+            donationMessage = donationGroup.donationMessage
+        )
     }
 }

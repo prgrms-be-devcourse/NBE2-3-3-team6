@@ -1,28 +1,21 @@
-package com.redbox.domain.user.dto;
+package com.redbox.domain.user.dto
 
-import com.redbox.domain.user.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.redbox.domain.user.entity.User
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserInfoResponse {
-
-    private String email;
-    private String name;
-    private String phoneNumber;
-    private String roadAddress;
-    private String extraAddress;
-    private String detailAddress;
-
-    public UserInfoResponse(User user) {
-        this.email = user.getEmail();
-        this.name = user.getName();
-        this.phoneNumber = user.getPhoneNumber();
-        this.roadAddress = user.getRoadAddress();
-        this.extraAddress = user.getExtraAddress();
-        this.detailAddress = user.getDetailAddress();
-    }
+data class UserInfoResponse(
+    val email: String,
+    val name: String,
+    val phoneNumber: String,
+    val roadAddress: String? = null,
+    val extraAddress: String? = null,
+    val detailAddress: String? = null,
+) {
+    constructor(user: User) : this(
+        email = user.email,
+        name = user.name,
+        phoneNumber = user.phoneNumber,
+        roadAddress = user.roadAddress,
+        extraAddress = user.extraAddress,
+        detailAddress = user.detailAddress
+    )
 }
