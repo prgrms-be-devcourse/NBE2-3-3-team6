@@ -73,4 +73,11 @@ class FundingService(
         //return FundingDetailResponse(funding, isLiked)
         return FundingDetailResponse.from(funding!!, true)
     }
+
+    // 게시글 상세 조회
+    fun viewFunding(fundingId: Long): FundingDetailResponse {
+        var funding = fundingRepository!!.findById(fundingId).orElseThrow { FundingNotFoundException() }
+        funding!!.incrementHits()
+        return getFundingDetail(funding.fundingId!!)
+    }
 }

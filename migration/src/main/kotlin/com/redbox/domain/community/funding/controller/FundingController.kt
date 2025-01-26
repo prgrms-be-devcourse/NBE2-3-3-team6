@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile
 class FundingController(
     val fundingService: FundingService,
 ) {
+    // 페이지 처리
+
     // 게시글 등록 (조회수 증가 X)
     @PostMapping("/write/funding")
     fun fundingWrite(
@@ -22,4 +24,14 @@ class FundingController(
         val detailResponse = fundingService.createFunding(writeFunding, files)
         return ResponseEntity.status(HttpStatus.CREATED).body(detailResponse)
     }
+
+    // 게시글 상세 조회
+    @GetMapping("/fundings/{fundingId}")
+    fun viewFundingDetail(
+        @PathVariable("fundingId") fundingId: Long,
+    ): ResponseEntity<FundingDetailResponse> {
+        val detailResponse = fundingService.viewFunding(fundingId)
+        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
+    }
+
 }
