@@ -38,21 +38,7 @@ class Funding (
     //var attachFiles: MutableList<AttachFile?> = mutableListOf()
 
 ) : BaseEntity() {
-    /* 파일
-    fun addAttachFiles(attachFile: AttachFile) {
-        attachFile.validateNull()
-        if (attachFile.isDuplicateIn(this.attachFiles)) return
 
-        attachFiles.add(attachFile)
-        attachFile.funding = this
-    }
-
-    fun removeAttachFiles(attachFile: AttachFile) {
-        attachFile.validateNull()
-
-        attachFiles.remove(attachFile)
-        attachFile.funding = null
-    } */
 
     var fundingTitle: String? = fundingTitle
         protected set
@@ -95,4 +81,46 @@ class Funding (
 
     var fundingLikes: Int = fundingLikes
         protected set
+
+    /* 파일
+    fun addAttachFiles(attachFile: AttachFile) {
+        attachFile.validateNull()
+        if (attachFile.isDuplicateIn(this.attachFiles)) return
+
+        attachFiles.add(attachFile)
+        attachFile.funding = this
+    }
+
+    fun removeAttachFiles(attachFile: AttachFile) {
+        attachFile.validateNull()
+
+        attachFiles.remove(attachFile)
+        attachFile.funding = null
+    } */
+
+    fun updateFunding(
+        title: String?,
+        content: String?,
+        DonationStartDate: LocalDate?,
+        DonationEndDate: LocalDate?,
+        targetAmount: Int
+    ) {
+        this.fundingTitle = title
+        this.fundingContent = content
+        this.donationStartDate = DonationStartDate
+        this.donationEndDate = DonationEndDate
+        this.targetAmount = targetAmount
+    }
+
+    // 상태 변경 메서드
+    fun approve() { this.fundingStatus = FundingStatus.APPROVE }
+    fun reject() { this.fundingStatus = FundingStatus.REJECT }
+    fun drop() { this.fundingStatus = FundingStatus.DROP }
+    fun expired() { this.progress = FundingStatus.EXPIRED }
+    fun inProgress() { this.progress = FundingStatus.IN_PROGRESS }
+    fun rejectProgress() { this.progress = FundingStatus.REJECT }
+    fun dropProgress() { this.progress = FundingStatus.DROP }
+    fun incrementHits() { this.fundingHits++ }
+    fun incrementLikes() { this.fundingLikes++ }
+    fun decrementLikes() { this.fundingLikes-- }
 }
