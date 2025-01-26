@@ -16,8 +16,8 @@ class Funding (
 
     fundingTitle: String? = null,
     fundingContent: String? = null,
-    targetAmount: Int = 0,
-    currentAmount: Int = 0,
+    targetAmount: Int? = 0,
+    currentAmount: Int? = 0,
 
     fundingStatus: FundingStatus,
     progress: FundingStatus,
@@ -95,30 +95,4 @@ class Funding (
 
     var fundingLikes: Int = fundingLikes
         protected set
-
-    fun updateFunding(
-        title: String?,
-        content: String?,
-        DonationStartDate: LocalDate?,
-        DonationEndDate: LocalDate?,
-        targetAmount: Int
-    ) {
-        this.fundingTitle = title
-        this.fundingContent = content
-        this.donationStartDate = DonationStartDate
-        this.donationEndDate = DonationEndDate
-        this.targetAmount = targetAmount
-    }
-
-    // 상태 변경 메서드
-    fun approve() { this.fundingStatus = FundingStatus.APPROVE }
-    fun reject() { this.fundingStatus = FundingStatus.REJECT }
-    fun drop() { this.fundingStatus = FundingStatus.DROP }
-    fun expired() { this.progress = FundingStatus.EXPIRED }
-    fun inProgress() { this.progress = FundingStatus.IN_PROGRESS }
-    fun rejectProgress() { this.progress = FundingStatus.REJECT }
-    fun dropProgress() { this.progress = FundingStatus.DROP }
-    fun incrementHits() { this.fundingHits++ }
-    fun incrementLikes() { this.fundingLikes++ }
-    fun decrementLikes() { this.fundingLikes-- }
 }
