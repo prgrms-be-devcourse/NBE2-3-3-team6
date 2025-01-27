@@ -1,19 +1,21 @@
 package com.redbox.domain.user.service
 
-import com.redbox.domain.auth.dto.CustomUserDetails
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.facade.RedcardFacade
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.entity.User
 import com.redbox.domain.user.exception.DuplicateEmailException
 import com.redbox.domain.user.exception.EmailNotVerifiedException
+import com.redbox.domain.user.exception.PasswordMismatchException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
 import com.redbox.domain.user.repository.UserRepository
+import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.util.RandomCodeGenerator
 import com.redbox.global.util.email.EmailSender
-import jakarta.transaction.Transactional
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.thymeleaf.context.Context
 import org.thymeleaf.spring6.SpringTemplateEngine
 
@@ -25,26 +27,12 @@ class UserService(
     private val emailVerificationCodeRepository: EmailVerificationCodeRepository,
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
+    private val redcardFacade: RedcardFacade,
+    private val authenticationService: AuthenticationService
     //private val donationGroupRepository: DonationGroupRepository,
     //private val fundingRepository: FundingRepository,
 
 ) {
-    // 현재 로그인한 사용자의 전체 정보 조회
-    fun getCurrentUser(): User {
-        val userDetails: CustomUserDetails = getCustomUserDetails()
-        return userRepository.findByEmail(userDetails.getUsername()) ?: throw UserNotFoundException()
-    }
-
-    // 현재 로그인한 user_id
-    fun getCurrentUserId(): Long {
-        return getCustomUserDetails().getUserId()
-    }
-
-    private fun getCustomUserDetails(): CustomUserDetails {
-        val authentication = SecurityContextHolder.getContext().authentication
-        return authentication.principal as CustomUserDetails
-    }
-
     private fun isDuplicatedEmail(email: String): Boolean {
         return userRepository.existsByEmail(email)
     }
@@ -129,5 +117,23 @@ class UserService(
         val email = userRepository.findByNameAndPhoneNumber(name, phoneNumber)?.email ?: throw UserNotFoundException()
 
         return FindIdResponse(email)
+    }
+
+    fun registerRedCard(request: RegisterRedcardRequest) {
+        redcardFacade.registerRedCard(request)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @Transactional
+    fun dropUser(request: DropInfoRequest) {
+        // 현재 로그인한 사용자 조회
+        val currentUser: User = authenticationService.getCurrentUser()
+
+        // 입력받은 비밀번호와 현재 사용자의 비밀번호 비교
+        if (!passwordEncoder.matches(request.password, currentUser.password)) {
+            throw PasswordMismatchException()
+        }
+
+        currentUser.inactive()
     }
 }
