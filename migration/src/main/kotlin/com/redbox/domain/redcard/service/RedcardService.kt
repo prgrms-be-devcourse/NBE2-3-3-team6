@@ -29,8 +29,7 @@ class RedcardService(
     fun registerRedCard(request: RegisterRedcardRequest) {
 
         // 헌혈증 번호 중복 체크
-        val isDuplicate = redcardRepository.findBySerialNumber(request.cardNumber).isPresent
-        if (isDuplicate) {
+        if (redcardRepository.findBySerialNumber(request.cardNumber) != null) {
             throw DuplicateSerialNumberException()
         }
 
@@ -69,7 +68,7 @@ class RedcardService(
     fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
         val userId = 99L // 임시 ID
         val redcard = redcardRepository.findByUserIdAndId(userId, redcardId)
-            .orElseThrow { RedcardNotBelongException() }
+            ?: throw RedcardNotBelongException()
 
         if (redcard.redcardStatus == RedcardStatus.PENDING) {
             throw PendingRedcardException()
