@@ -26,11 +26,13 @@ class AttachFileService(
         private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
     }
 
-    fun getFileDownloadUrl(postId: Long, fileId: Long?): String {
-        val attachFile = attachFileRepository.findById(fileId!!)
+    // TODO : (수정) 파일 있는데, null 반환
+    fun getFileDownloadUrl(postId: Long, fileId: Long): String {
+
+        val attachFile = attachFileRepository.findById(fileId)
             .orElseThrow { AttachFileNotFoundException() }
 
-        validateFileOwnership(attachFile!!, postId)
+        validateFileOwnership(attachFile, postId)
 
         // PreSignedURL 생성
         return s3Service.generatePresignedUrl(
@@ -48,12 +50,12 @@ class AttachFileService(
     }
 
     @Transactional
-    fun addFile(category: Category, postId: Long?, file: MultipartFile): AttachFileResponse {
+    fun addFile(category: Category, postId: Long, file: MultipartFile): AttachFileResponse {
         // S3에 파일 업로드
         val newFilename = FileUtils.generateNewFilename()
         val extension = FileUtils.getExtension(file)
         val fullFilename = "$newFilename.$extension"
-        postId?.let { s3Service.uploadFile(file, category, it, fullFilename) }
+        s3Service.uploadFile(file, category, postId, fullFilename)
 
         // 카테고리에 맞는 전략 사용
         val strategy: FileAttachStrategy? = fileAttachStrategyFactory.getStrategy(category)
