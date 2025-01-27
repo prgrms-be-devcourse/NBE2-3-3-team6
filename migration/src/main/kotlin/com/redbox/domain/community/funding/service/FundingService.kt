@@ -6,9 +6,11 @@ import com.redbox.domain.community.funding.dto.FundingWriteRequest
 import com.redbox.domain.community.funding.dto.ListResponse
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
+import com.redbox.domain.community.funding.entity.Like
 import com.redbox.domain.community.funding.entity.Priority
 import com.redbox.domain.community.funding.exception.FundingNotFoundException
 import com.redbox.domain.community.funding.exception.UnauthorizedAccessException
+import com.redbox.domain.community.funding.repository.LikeRepository
 import com.redbox.domain.funding.repository.FundingRepository
 import com.redbox.global.entity.PageResponse
 import org.springframework.data.domain.Page
@@ -21,7 +23,8 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 class FundingService(
-    private val fundingRepository: FundingRepository
+    private val fundingRepository: FundingRepository,
+    private val likeRepository: LikeRepository
 
 ) {
     // 게시글 등록
@@ -83,14 +86,6 @@ class FundingService(
         return FundingDetailResponse.from(funding, true)
     }
 
-    // 게시글 상세 조회 (조회수 증가 O)
-    @Transactional
-    fun viewFunding(fundingId: Long): FundingDetailResponse {
-        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
-        funding.incrementHits()
-        return getFundingDetail(funding.fundingId ?: throw FundingNotFoundException())
-    }
-
     // 게시글 목록 조회 (페이지 처리)
     fun getFundingList(page: Int, size: Int, funding: FundingFilter): PageResponse<ListResponse> {
         val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
@@ -101,6 +96,48 @@ class FundingService(
         val responsePage: Page<ListResponse> = boardPage.map { ListResponse(it) }
 
         return PageResponse(responsePage)
+    }
+
+    // 게시글 상세 조회 (조회수 증가 O)
+    @Transactional
+    fun viewFunding(fundingId: Long): FundingDetailResponse {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        funding.incrementHits()
+        return getFundingDetail(funding.fundingId ?: throw FundingNotFoundException())
+    }
+
+    // 게시글 좋아요 확인
+    @Transactional
+    fun likeFunding(fundingId: Long) {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        // val userId: Long = getCurrentUserId() TODO: UserID
+        val userId: Long = 0L
+
+        // 좋아요 로직
+        val like: Like? = likeRepository.findByUserIdAndFundingId(userId, fundingId)
+        like?.let {
+            if (it.isLiked) {
+                it.falseLike()
+                funding.decrementLikes()
+                println(it.isLiked)
+            } else {
+                it.trueLike()
+                funding.incrementLikes()
+                println(it.isLiked)
+            }
+            likeRepository.save(it)
+            fundingRepository.save(funding)
+        } ?: run {
+            // Like 엔티티가 없으면 새로 생성
+            val newLike = Like(
+                userId = userId,
+                fundingId = fundingId,
+                isLiked = true,
+            )
+            funding.incrementLikes()
+            likeRepository.save(newLike)
+            fundingRepository.save(funding)
+        }
     }
 
     // 게시글 수정
