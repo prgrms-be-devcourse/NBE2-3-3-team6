@@ -51,4 +51,13 @@ class UserController(
         userService.resetPassword(request)
         return ResponseEntity.ok().build()
     }
+
+    @PostMapping("/auth/find-id")
+    fun findUserId(
+        @RequestBody @Valid request: FindIdRequest
+    ): ResponseEntity<FindIdResponse> {
+        // 요청 객체를 그대로 서비스에 넘김
+        val response = userService.findUserId(request)
+        return ResponseEntity.ok(response)
+    }
 }

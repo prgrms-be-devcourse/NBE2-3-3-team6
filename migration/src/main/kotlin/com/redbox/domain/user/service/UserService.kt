@@ -102,4 +102,13 @@ class UserService(
         val content = createEmailContent("temp-password-email", "tempPassword", tempPassword)
         emailSender.sendMail(request.email, subject, content)
     }
+
+    fun findUserId(request: FindIdRequest): FindIdResponse {
+        val name = request.userName
+        val phoneNumber = request.phoneNumber
+
+        val email = userRepository.findByNameAndPhoneNumber(name, phoneNumber)?.email ?: throw UserNotFoundException()
+
+        return FindIdResponse(email)
+    }
 }
