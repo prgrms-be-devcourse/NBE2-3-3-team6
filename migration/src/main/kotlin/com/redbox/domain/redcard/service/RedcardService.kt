@@ -5,6 +5,7 @@ import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.exception.DuplicateSerialNumberException
+import com.redbox.domain.redcard.exception.NotEnoughRedCardException
 import com.redbox.domain.redcard.exception.PendingRedcardException
 import com.redbox.domain.redcard.exception.RedcardNotBelongException
 import com.redbox.domain.redcard.exception.RedcardNotFoundException

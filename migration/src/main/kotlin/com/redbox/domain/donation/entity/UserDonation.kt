@@ -1,6 +1,8 @@
 package com.redbox.domain.donation.entity
 
 import com.redbox.domain.donation.dto.DonationRequest
+import com.redbox.domain.redcard.entity.OwnerType
+import com.redbox.domain.redcard.entity.Redcard
 import java.time.LocalDate
 
 class UserDonation(
@@ -22,15 +24,16 @@ class UserDonation(
         return redCards.map { redcard ->
             DonationDetail(
                 donationGroupId,
-                redcard.getCardId()
+                redcard.id!!
             )
         }
     }
 
-    override fun updateRedCardEntities(receiverId: Long, redCards: List<Redcard>) {
-        redCards.map {
-            redcard ->
-            redcard.changeUserId(receiverId)
-        }
+    override fun getDonationType(): DonationType {
+        return DonationType.USER
+    }
+
+    override fun getOwnerType(): OwnerType {
+        return OwnerType.USER
     }
 }
