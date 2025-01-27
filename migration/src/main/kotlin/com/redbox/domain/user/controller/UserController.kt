@@ -6,10 +6,7 @@ import com.redbox.domain.user.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -75,5 +72,10 @@ class UserController(
     fun dropUser(@RequestBody @Valid request: DropInfoRequest): ResponseEntity<Void> {
         userService.dropUser(request)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/users/my-info")
+    fun getUserInfo(): ResponseEntity<UserInfoResponse> {
+        return ResponseEntity.ok(userService.getUserInfo())
     }
 }

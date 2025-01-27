@@ -136,4 +136,9 @@ class UserService(
 
         currentUser.inactive()
     }
+
+    fun getUserInfo(): UserInfoResponse {
+        val user: User = authenticationService.getCurrentUser()
+        return UserInfoResponse(user)
+    }
 }
