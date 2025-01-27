@@ -78,4 +78,26 @@ class RedcardService(
         val newStatus = request.validateAndUpdateStatus(redcard.redcardStatus)
         redcard.changeRedcardStatus(newStatus)
     }
+
+    fun getAvailableRedcardList(userId: Long, quantity: Int): List<Redcard> {
+
+        val pageable = PageRequest.of(0, quantity)
+        val redcards: List<Redcard> =
+            redcardRepository.findByUserIdAndRedcardStatus(userId, RedcardStatus.AVAILABLE, pageable)
+
+        if (redcards.isEmpty() || redcards.size < quantity) {
+            throw NotEnoughRedCardException()
+        }
+
+        return redcards
+    }
+
+    fun updateDonatedRedcards(redcards: List<Redcard>, ownerType: OwnerType, userId: Long) {
+
+        redcards.map {
+            redcard ->
+            redcard.changeOwnerType(ownerType)
+            redcard.updateUser(userId)
+        }
+    }
 }

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service
 class DonationService(
     val donationFactory: DonationFactory,
     val donationGroupRepository: DonationGroupRepository,
-    val donationDetailRepository: DonationDetailRepository
+    val donationDetailRepository: DonationDetailRepository,
+    val redcardService: RedcardService
 ) {
 
     @Transactional
@@ -39,6 +40,7 @@ class DonationService(
         if (donorId == donationRequest.receiveId) {
             throw SelfDonationException();
         }
+        val redCards = redcardService.getAvailableRedcardList(donorId, donationRequest.quantity)
 
         val donation = donationFactory.createDonation(type)
         // donationGroup 저장
@@ -47,6 +49,8 @@ class DonationService(
 
         // donationDetail 저장
         val donationDetails = donation.createDonationDetails(savedDonation.id!!, redCards)
+        donationDetailRepository.saveAll(donationDetails)
+
         // redCard 소유자 변경
         donation.updateRedCardEntities(donationRequest.receiveId, redCards)
         donationDetailRepository.saveAll(donationDetails)

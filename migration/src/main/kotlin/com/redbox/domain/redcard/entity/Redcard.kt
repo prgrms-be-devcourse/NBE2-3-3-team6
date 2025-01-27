@@ -7,7 +7,7 @@ import java.time.LocalDate
 @Entity
 @Table(name = "redcards")
 class Redcard(
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     var userId: Long,
 
     @Column(nullable = false)

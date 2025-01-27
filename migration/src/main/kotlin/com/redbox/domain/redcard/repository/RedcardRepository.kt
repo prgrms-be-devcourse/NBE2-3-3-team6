@@ -1,6 +1,7 @@
 package com.redbox.domain.redcard.repository
 
 import com.redbox.domain.redcard.entity.Redcard
+import com.redbox.domain.redcard.entity.RedcardStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -13,4 +14,6 @@ interface RedcardRepository : JpaRepository<Redcard, Long> {
     fun findAllByUserId(userId: Long, pageable: Pageable): Page<Redcard>
 
     fun findByUserIdAndId(userId: Long, id: Long): Optional<Redcard>
+
+    fun findByUserIdAndRedcardStatus(userId: Long, redcardStatus: RedcardStatus, pageable: Pageable): List<Redcard>
 }
