@@ -1,5 +1,6 @@
 package com.redbox.domain.redcard.service
 
+import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
@@ -14,6 +15,7 @@ import com.redbox.global.auth.service.AuthenticationService
 // import com.redbox.domain.user.service.UserService
 import com.redbox.global.entity.PageResponse
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -48,11 +50,10 @@ class RedcardService(
     }
 
     // TODO: Auth 관련 마이그레이션이 끝난 후 테스트 해봐야함
-    fun getRedcards(page: Int, size: Int): PageResponse<Redcard> {
+    fun getRedcards(page: Int, size: Int): PageResponse<RedcardResponse> {
         val pageable = PageRequest.of(page - 1, size)
-         val userId = authenticationService.getCurrentUserId()
-        val redcards = redcardRepository.findAllByUserId(userId, pageable)
-        return PageResponse(redcards)
+        val redcards = redcardRepository.findAllByUserId(authenticationService.getCurrentUserId(), pageable)
+        return PageResponse(redcards.map { RedcardResponse(it) })
     }
 
     fun getRedcardById(redcardId: Long): Redcard {
