@@ -30,6 +30,7 @@ class AttachFileService(
     fun getFileDownloadUrl(postId: Long, fileId: Long): String {
 
         val attachFile = attachFileRepository.findById(fileId)
+            .filter{it.funding?.fundingId == postId}
             .orElseThrow { AttachFileNotFoundException() }
 
         validateFileOwnership(attachFile, postId)

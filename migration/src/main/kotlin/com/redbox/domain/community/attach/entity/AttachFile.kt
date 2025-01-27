@@ -43,7 +43,7 @@ class AttachFile (
     fun belongToPost(postId: Long): Boolean {
         return when (this.category) {
             //Category.NOTICE -> isNoticeFile(postId)
-            FUNDING -> isFundingFile(postId)
+            Category.FUNDING -> isFundingFile(postId)
             NOTICE -> TODO()
         }
     }

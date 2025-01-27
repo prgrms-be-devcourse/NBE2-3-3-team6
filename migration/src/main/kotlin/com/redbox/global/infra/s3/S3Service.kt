@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import java.io.IOException
 import java.lang.IllegalArgumentException
+import java.net.URLEncoder
 import java.net.URLEncoder.encode
 import java.nio.charset.StandardCharsets
 import java.time.Duration.ofMinutes
@@ -81,10 +82,10 @@ class S3Service {
         }
     }
 
+    // TODO : (수정) 파일 있는 경우, return null
     fun generatePresignedUrl(category: Category, id: Long, fileName: String, originalFilename: String): String {
         try {
             val encodedFilename = encode(originalFilename, StandardCharsets.UTF_8)
-
 
             val presignRequest: GetObjectPresignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(ofMinutes(10))
@@ -94,6 +95,10 @@ class S3Service {
                         .responseContentDisposition("attachment; filename=\"$encodedFilename\"")
                 })
                 .build()
+
+            println("s3Presigner: $s3Presigner")
+            println("Generated Key: ${getKey(category, id, fileName)}")
+            println("Generated URL: ${s3Presigner?.presignGetObject(presignRequest)?.url()}")
 
             return s3Presigner?.presignGetObject(presignRequest)
                 ?.url()
