@@ -6,10 +6,7 @@ import com.redbox.domain.user.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -74,6 +71,25 @@ class UserController(
     @DeleteMapping("/auth/drop-info")
     fun dropUser(@RequestBody @Valid request: DropInfoRequest): ResponseEntity<Void> {
         userService.dropUser(request)
+        return ResponseEntity.ok().build()
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @GetMapping("/users/my-info")
+    fun getUserInfo(): ResponseEntity<UserInfoResponse> {
+        return ResponseEntity.ok(userService.getUserInfo())
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info")
+    fun updateUserInfo(@RequestBody @Valid request: UpdateUserInfoRequest): ResponseEntity<UserInfoResponse> {
+        return ResponseEntity.ok(userService.updateUserInfo(request))
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info/password")
+    fun updatePassword(@RequestBody @Valid request: UpdatePasswordRequest): ResponseEntity<Void> {
+        userService.changePassword(request)
         return ResponseEntity.ok().build()
     }
 }
