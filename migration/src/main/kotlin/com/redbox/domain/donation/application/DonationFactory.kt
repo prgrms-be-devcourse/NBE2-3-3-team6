@@ -2,7 +2,9 @@ package com.redbox.domain.donation.application
 
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.entity.Donation
+import com.redbox.domain.donation.entity.RedboxDonation
 import com.redbox.domain.donation.entity.UserDonation
+import com.redbox.domain.donation.exception.InvalidDonationTypeException
 import org.springframework.stereotype.Component
 import java.util.Locale
 
@@ -12,9 +14,9 @@ class DonationFactory {
     fun createDonation(type: String): Donation {
         return when (type.lowercase(Locale.getDefault())) {
             "user" -> UserDonation()
-//            "redbox" ->
+            "redbox" -> RedboxDonation()
 //            "request"
-            else -> throw IllegalArgumentException("지원되지 않는 기부 유형")
+            else -> throw InvalidDonationTypeException()
         }
     }
 }
