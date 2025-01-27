@@ -1,8 +1,11 @@
 package com.redbox.domain.user.controller
 
+import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.service.UserService
+import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -90,6 +93,25 @@ class UserController(
     @PutMapping("/users/my-info/password")
     fun updatePassword(@RequestBody @Valid request: UpdatePasswordRequest): ResponseEntity<Void> {
         userService.changePassword(request)
+        return ResponseEntity.ok().build()
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @GetMapping("/users/my-info/redcards")
+    fun getRedcards(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "6") size: Int
+    ): ResponseEntity<PageResponse<RedcardResponse>> {
+        return ResponseEntity.ok(userService.getRedcards(page, size))
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info/redcards/{redcardId}")
+    fun updateRedcardStatus(
+        @RequestBody @Valid request: UpdateRedcardStatusRequest,
+        @PathVariable redcardId: Long
+    ): ResponseEntity<Void> {
+        userService.updateRedcardStatus(request, redcardId)
         return ResponseEntity.ok().build()
     }
 }
