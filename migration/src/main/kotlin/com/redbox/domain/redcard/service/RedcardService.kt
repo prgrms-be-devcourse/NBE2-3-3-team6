@@ -7,6 +7,8 @@ import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.exception.DuplicateSerialNumberException
 import com.redbox.domain.redcard.repository.RedcardRepository
 // import com.redbox.domain.user.service.UserService
+import com.redbox.global.entity.PageResponse
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -37,5 +39,13 @@ class RedcardService(
         )
 
         redcardRepository.save(redcard)
+    }
+
+    fun getRedcards(page: Int, size: Int): PageResponse<Redcard> {
+        val pageable = PageRequest.of(page - 1, size)
+        // val userId = userService.getCurrentUserId() // TODO: UserService 추가 후 수정 필요
+        val userId = 0L // 임시 ID
+        val redcards = redcardRepository.findAllByUserId(userId, pageable)
+        return PageResponse(redcards)
     }
 }
