@@ -1,9 +1,6 @@
 package com.redbox.domain.user.controller
 
-import com.redbox.domain.user.dto.SignupRequest
-import com.redbox.domain.user.dto.SignupResponse
-import com.redbox.domain.user.dto.ValidateVerificationCodeRequest
-import com.redbox.domain.user.dto.VerificationCodeRequest
+import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -45,5 +42,13 @@ class UserController(
     ): ResponseEntity<SignupResponse> {
         val response = userService.signup(request)
         return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/auth/reset-password")
+    fun resetPassword(
+        @RequestBody @Valid request: ResetPasswordRequest
+    ): ResponseEntity<Void> {
+        userService.resetPassword(request)
+        return ResponseEntity.ok().build()
     }
 }
