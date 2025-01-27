@@ -2,6 +2,7 @@ package com.redbox.domain.user.controller
 
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.service.UserService
 import com.redbox.global.entity.PageResponse
@@ -102,5 +103,15 @@ class UserController(
         @RequestParam(defaultValue = "6") size: Int
     ): ResponseEntity<PageResponse<RedcardResponse>> {
         return ResponseEntity.ok(userService.getRedcards(page, size))
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info/redcards/{redcardId}")
+    fun updateRedcardStatus(
+        @RequestBody @Valid request: UpdateRedcardStatusRequest,
+        @PathVariable redcardId: Long
+    ): ResponseEntity<Void> {
+        userService.updateRedcardStatus(request, redcardId)
+        return ResponseEntity.ok().build()
     }
 }

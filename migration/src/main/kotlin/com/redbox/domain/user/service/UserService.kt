@@ -3,6 +3,7 @@ package com.redbox.domain.user.service
 import com.redbox.domain.community.funding.exception.UserNotFoundException
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.redcard.facade.RedcardFacade
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.entity.User
@@ -174,5 +175,10 @@ class UserService(
     // TODO: auth 쪽 완성 시 테스트 진행
     fun getRedcards(page: Int, size: Int): PageResponse<RedcardResponse> {
         return redcardFacade.getRedcards(page, size)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
+        redcardFacade.updateRedcardStatus(request, redcardId)
     }
 }
