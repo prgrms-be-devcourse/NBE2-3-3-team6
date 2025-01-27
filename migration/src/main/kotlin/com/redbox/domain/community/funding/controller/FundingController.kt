@@ -101,4 +101,13 @@ class FundingController(
         val response = file.let { attachFileService.addFile(Category.FUNDING, fundingId, it) }
         return ResponseEntity.ok(response)
     }
+
+    @DeleteMapping("/fundings/{fundingId}/files/{fileId}")
+    fun removeFile(
+        @PathVariable fundingId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<Void> {
+        attachFileService.removeFile(Category.FUNDING, fundingId, fileId)
+        return ResponseEntity.ok().build()
+    }
 }
