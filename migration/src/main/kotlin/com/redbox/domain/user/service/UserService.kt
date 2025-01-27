@@ -98,7 +98,6 @@ class UserService(
         userRepository.save(user)
 
         // 이메일 전송
-        // 이메일 전송
         val subject = "[Redbox] 임시 비밀번호 안내"
         val content = createEmailContent("temp-password-email", "tempPassword", tempPassword)
         emailSender.sendMail(request.email, subject, content)
