@@ -1,17 +1,24 @@
 package com.redbox.domain.community.funding.service
 
 import com.redbox.domain.community.funding.dto.FundingDetailResponse
+import com.redbox.domain.community.funding.dto.FundingFilter
 import com.redbox.domain.community.funding.dto.FundingWriteRequest
+import com.redbox.domain.community.funding.dto.ListResponse
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.Priority
 import com.redbox.domain.community.funding.exception.FundingNotFoundException
-import com.redbox.domain.community.funding.exception.UserNotFoundException
 import com.redbox.domain.funding.repository.FundingRepository
-import com.redbox.global.util.FileUtils
+import com.redbox.global.entity.PageResponse
+import org.apache.catalina.filters.RequestFilter
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.util.function.Function
 
 @Service
 class FundingService(
@@ -38,6 +45,7 @@ class FundingService(
         )
         fundingRepository?.save(funding)
 
+        // TODO : 파일 처리
         /*if (files != null && !files.isEmpty()) {
             for (file in files) {
                 // S3에 파일 업로드
@@ -61,11 +69,12 @@ class FundingService(
         return getFundingDetail(funding.fundingId!!) // null 이 아님
     }
 
-    // 게시글 정보 가져오기
+    // 게시글 정보 가져오기 (조회수 증가 X) - 게시글 등록 즉시
     fun getFundingDetail(fundingId: Long): FundingDetailResponse {
         var funding = fundingRepository!!.findById(fundingId).orElseThrow { FundingNotFoundException() }
         //val userId = currentUserId
 
+        // TODO : 좋아요 처리
         // 좋아요 여부 조회
         //val like = likesRepository!!.findByUserIdAndFundingId(userId, fundingId)
         //val isLiked = like != null && like.isLiked
@@ -74,10 +83,22 @@ class FundingService(
         return FundingDetailResponse.from(funding!!, true)
     }
 
-    // 게시글 상세 조회
+    // 게시글 상세 조회 (조회수 증가 O)
     fun viewFunding(fundingId: Long): FundingDetailResponse {
-        var funding = fundingRepository!!.findById(fundingId).orElseThrow { FundingNotFoundException() }
+        val funding = fundingRepository!!.findById(fundingId).orElseThrow { FundingNotFoundException() }
         funding!!.incrementHits()
         return getFundingDetail(funding.fundingId!!)
+    }
+
+    // 게시글 목록 조회 (페이지 처리)
+    fun getFundingList(page: Int, size: Int, funding: FundingFilter): PageResponse<ListResponse> {
+        val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
+        //val userId: Long = getCurrentUserId() // TODO : UserID
+        val userId: Long = 0L
+
+        val boardPage: Page<Funding> = fundingRepository?.searchBoards(userId, funding, pageable) ?: throw IllegalStateException("fundingRepository is not initialized")
+        val responsePage: Page<ListResponse> = boardPage.map { ListResponse(it) }
+
+        return PageResponse(responsePage)
     }
 }
