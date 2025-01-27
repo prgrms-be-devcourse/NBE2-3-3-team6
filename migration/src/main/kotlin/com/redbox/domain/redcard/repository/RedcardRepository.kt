@@ -12,4 +12,5 @@ interface RedcardRepository : JpaRepository<Redcard, Long> {
 
     fun findAllByUserId(userId: Long, pageable: Pageable): Page<Redcard>
 
+    fun findByUserIdAndId(userId: Long, id: Long): Optional<Redcard>
 }
