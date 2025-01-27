@@ -1,9 +1,6 @@
 package com.redbox.domain.community.funding.controller
 
-import com.redbox.domain.community.funding.dto.FundingDetailResponse
-import com.redbox.domain.community.funding.dto.FundingFilter
-import com.redbox.domain.community.funding.dto.FundingWriteRequest
-import com.redbox.domain.community.funding.dto.ListResponse
+import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
@@ -26,15 +23,6 @@ class FundingController(
         return ResponseEntity.status(HttpStatus.CREATED).body(detailResponse)
     }
 
-    // 게시글 상세 조회
-    @GetMapping("/fundings/{fundingId}")
-    fun viewFundingDetail(
-        @PathVariable("fundingId") fundingId: Long,
-    ): ResponseEntity<FundingDetailResponse> {
-        val detailResponse = fundingService.viewFunding(fundingId)
-        return ResponseEntity.ok(detailResponse)
-    }
-
     // 게시글 목록 조회
     @GetMapping("/fundings")
     fun getFundings(
@@ -44,6 +32,23 @@ class FundingController(
     ): ResponseEntity<PageResponse<ListResponse>> {
         val response: PageResponse<ListResponse> = fundingService.getFundingList(page, size, funding)
         return ResponseEntity.ok(response)
+    }
+
+    // 게시글 상세 조회
+    @GetMapping("/fundings/{fundingId}")
+    fun viewFundingDetail(
+        @PathVariable("fundingId") fundingId: Long,
+    ): ResponseEntity<FundingDetailResponse> {
+        val detailResponse = fundingService.viewFunding(fundingId)
+        return ResponseEntity.ok(detailResponse)
+    }
+
+    // 게시글 좋아요 확인
+    @PostMapping("/fundings/{fundingId}/like")
+    fun fundingLike(@PathVariable fundingId: Long): ResponseEntity<LikeResponse> {
+        fundingService.likeFunding(fundingId)
+        val likeResponse = LikeResponse("처리되었습니다")
+        return ResponseEntity.status(HttpStatus.OK).body(likeResponse)
     }
 
     // 게시글 수정
