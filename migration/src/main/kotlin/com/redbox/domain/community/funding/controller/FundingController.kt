@@ -85,6 +85,14 @@ class FundingController(
         return ResponseEntity.ok().build()
     }
 
+    @GetMapping("/fundings/{fundingId}/files/{fileId}")
+    fun downloadFile(
+        @PathVariable fundingId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(attachFileService.getFileDownloadUrl(fundingId, fileId))
+    }
+
     @PostMapping(value = ["/fundings/{fundingId}/files"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun addFile(
         @PathVariable fundingId: Long,
