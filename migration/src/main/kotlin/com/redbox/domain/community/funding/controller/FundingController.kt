@@ -32,7 +32,7 @@ class FundingController(
         @PathVariable("fundingId") fundingId: Long,
     ): ResponseEntity<FundingDetailResponse> {
         val detailResponse = fundingService.viewFunding(fundingId)
-        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
+        return ResponseEntity.ok(detailResponse)
     }
 
     // 게시글 목록 조회
@@ -43,7 +43,7 @@ class FundingController(
         @ModelAttribute funding: FundingFilter
     ): ResponseEntity<PageResponse<ListResponse>> {
         val response: PageResponse<ListResponse> = fundingService.getFundingList(page, size, funding)
-        return ResponseEntity.status(HttpStatus.OK).body(response)
+        return ResponseEntity.ok(response)
     }
 
     // 게시글 수정
@@ -53,7 +53,7 @@ class FundingController(
         @RequestBody writeFunding: @Valid FundingWriteRequest
     ): ResponseEntity<FundingDetailResponse> {
         val detailResponse = fundingService.modifyFunding(fundingId, writeFunding)
-        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
+        return ResponseEntity.ok(detailResponse)
     }
 
     // 게시글 수정 내용 확인
@@ -63,6 +63,15 @@ class FundingController(
     ): ResponseEntity<FundingDetailResponse> {
         fundingService.modifyAuthorize(fundingId)
         val detailResponse = fundingService.getFundingDetail(fundingId)
-        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
+        return ResponseEntity.ok(detailResponse)
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/fundings/{fundingId}")
+    fun fundingDelete(
+        @PathVariable("fundingId") fundingId: Long
+    ): ResponseEntity<FundingDetailResponse> {
+        fundingService.deleteFunding(fundingId)
+        return ResponseEntity.ok().build()
     }
 }
