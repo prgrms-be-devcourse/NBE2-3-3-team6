@@ -5,8 +5,11 @@ import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.exception.DuplicateSerialNumberException
+import com.redbox.domain.redcard.exception.PendingRedcardException
+import com.redbox.domain.redcard.exception.RedcardNotBelongException
 import com.redbox.domain.redcard.exception.RedcardNotFoundException
 import com.redbox.domain.redcard.repository.RedcardRepository
+import com.redbox.domain.user.dto.UpdateRedcardStatusRequest
 // import com.redbox.domain.user.service.UserService
 import com.redbox.global.entity.PageResponse
 import org.springframework.data.domain.PageRequest
@@ -60,5 +63,17 @@ class RedcardService(
         redcard.changeRedcardStatus(RedcardStatus.AVAILABLE)
     }
 
+    @Transactional
+    fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
+        val userId = 99L // 임시 ID
+        val redcard = redcardRepository.findByUserIdAndId(userId, redcardId)
+            .orElseThrow { RedcardNotBelongException() }
 
+        if (redcard.redcardStatus == RedcardStatus.PENDING) {
+            throw PendingRedcardException()
+        }
+
+        val newStatus = request.validateAndUpdateStatus(redcard.redcardStatus)
+        redcard.changeRedcardStatus(newStatus)
+    }
 }
