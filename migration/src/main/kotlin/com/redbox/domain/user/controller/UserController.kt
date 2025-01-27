@@ -85,4 +85,11 @@ class UserController(
     fun updateUserInfo(@RequestBody @Valid request: UpdateUserInfoRequest): ResponseEntity<UserInfoResponse> {
         return ResponseEntity.ok(userService.updateUserInfo(request))
     }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info/password")
+    fun updatePassword(@RequestBody @Valid request: UpdatePasswordRequest): ResponseEntity<Void> {
+        userService.changePassword(request)
+        return ResponseEntity.ok().build()
+    }
 }

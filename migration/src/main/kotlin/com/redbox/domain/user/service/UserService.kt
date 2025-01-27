@@ -8,6 +8,7 @@ import com.redbox.domain.user.entity.User
 import com.redbox.domain.user.exception.DuplicateEmailException
 import com.redbox.domain.user.exception.EmailNotVerifiedException
 import com.redbox.domain.user.exception.PasswordMismatchException
+import com.redbox.domain.user.exception.PasswordNotMatchException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
 import com.redbox.domain.user.repository.UserRepository
 import com.redbox.global.auth.service.AuthenticationService
@@ -155,5 +156,16 @@ class UserService(
         user.changeDetailAddress(request.detailAddress)
         userRepository.save(user)
         return UserInfoResponse(user)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @Transactional
+    fun changePassword(request: UpdatePasswordRequest) {
+        if (request.password != request.passwordConfirm) {
+            throw PasswordNotMatchException()
+        }
+
+        val user: User = authenticationService.getCurrentUser()
+        user.changePassword(encodePassword(request.password))
     }
 }
