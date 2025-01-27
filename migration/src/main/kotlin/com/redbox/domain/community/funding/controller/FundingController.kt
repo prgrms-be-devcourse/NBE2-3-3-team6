@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import org.thymeleaf.engine.IThrottledTemplateWriterControl
 
 @RestController
 class FundingController(
@@ -38,12 +39,22 @@ class FundingController(
 
     // 게시글 목록 조회
     @GetMapping("/fundings")
-    fun getRequests(
+    fun getFundings(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @ModelAttribute funding: FundingFilter
     ): ResponseEntity<PageResponse<ListResponse>> {
         val response: PageResponse<ListResponse> = fundingService.getFundingList(page, size, funding)
         return ResponseEntity.status(HttpStatus.OK).body(response)
+    }
+
+    // 게시글 수정
+    @PutMapping("/fundings/{fundingId}")
+    fun fundingModify(
+        @PathVariable("fundingId") fundingId: Long,
+        @RequestBody writeFunding: @Valid FundingWriteRequest
+    ): ResponseEntity<FundingDetailResponse> {
+        val detailResponse = fundingService.modifyFunding(fundingId, writeFunding)
+        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
     }
 }
