@@ -36,4 +36,8 @@ class UserDonation(
     override fun getOwnerType(): OwnerType {
         return OwnerType.USER
     }
+
+    override fun getReceiverId(donationRequest: DonationRequest): Long {
+        return donationRequest.receiveId
+    }
 }

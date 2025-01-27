@@ -93,7 +93,7 @@ class RedcardService(
         return redcards
     }
 
-    fun updateDonatedRedcards(redcards: List<Redcard>, ownerType: OwnerType, userId: Long) {
+    fun updateDonatedRedcards(redcards: List<Redcard>, ownerType: OwnerType, userId: Long?) {
 
         redcards.map {
             redcard ->
