@@ -87,4 +87,11 @@ class RedcardService(
         }
         redcardRepository.saveAll(redcardList) // 변경 사항 저장
     }
+
+    @Transactional
+    fun updateRedCardStatusPending(redcardList: List<Redcard>) {
+        redcardList.forEach { it.changeRedcardStatus(RedcardStatus.PENDING) }
+        redcardRepository.saveAll(redcardList) // 변경 사항 저장
+    }
+
 }
