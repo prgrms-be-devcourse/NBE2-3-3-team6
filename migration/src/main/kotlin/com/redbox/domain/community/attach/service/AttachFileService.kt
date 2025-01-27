@@ -1,7 +1,10 @@
 package com.redbox.domain.community.attach.service
 
 import com.redbox.domain.community.attach.dto.AttachFileResponse
+import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.domain.community.attach.entity.Category
+import com.redbox.domain.community.attach.exception.AttachFileNotFoundException
+import com.redbox.domain.community.attach.exception.FileNotBelongException
 import com.redbox.domain.community.attach.repository.AttachFileRepository
 import com.redbox.domain.community.attach.strategy.FileAttachStrategy
 import com.redbox.domain.community.attach.strategy.FileAttachStrategyFactory
@@ -17,6 +20,27 @@ class AttachFileService(
     private val fileAttachStrategyFactory: FileAttachStrategyFactory,
     private val attachFileRepository: AttachFileRepository,
 ) {
+    fun getFileDownloadUrl(postId: Long, fileId: Long?): String {
+        val attachFile = attachFileRepository.findById(fileId!!)
+            .orElseThrow { AttachFileNotFoundException() }
+
+        validateFileOwnership(attachFile!!, postId)
+
+        // PreSignedURL 생성
+        return s3Service.generatePresignedUrl(
+            attachFile.category,
+            postId,
+            attachFile.newFilename,
+            attachFile.originalFilename
+        )
+    }
+
+    private fun validateFileOwnership(attachFile: AttachFile, postId: Long) {
+        if (!attachFile.belongToPost(postId)) {
+            throw FileNotBelongException()
+        }
+    }
+
     @Transactional
     fun addFile(category: Category, postId: Long?, file: MultipartFile): AttachFileResponse {
         // S3에 파일 업로드
