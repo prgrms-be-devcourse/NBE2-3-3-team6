@@ -9,11 +9,13 @@ import java.util.Optional
 
 interface RedcardRepository : JpaRepository<Redcard, Long> {
 
-    fun findBySerialNumber(serialNumber: String): Optional<Redcard>
+    fun findBySerialNumber(serialNumber: String): Redcard?
 
     fun findAllByUserId(userId: Long, pageable: Pageable): Page<Redcard>
 
-    fun findByUserIdAndId(userId: Long, id: Long): Optional<Redcard>
-
     fun findByUserIdAndRedcardStatus(userId: Long, redcardStatus: RedcardStatus, pageable: Pageable): List<Redcard>
+  
+    fun findByUserIdAndId(userId: Long, id: Long): Redcard?
+
+    fun existsBySerialNumber(serialNumber: String): Boolean
 }

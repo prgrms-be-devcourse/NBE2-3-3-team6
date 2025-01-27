@@ -1,7 +1,9 @@
 package com.redbox.domain.user.service
 
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.redcard.facade.RedcardFacade
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.entity.User
@@ -12,6 +14,7 @@ import com.redbox.domain.user.exception.PasswordNotMatchException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
 import com.redbox.domain.user.repository.UserRepository
 import com.redbox.global.auth.service.AuthenticationService
+import com.redbox.global.entity.PageResponse
 import com.redbox.global.util.RandomCodeGenerator
 import com.redbox.global.util.email.EmailSender
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -167,5 +170,15 @@ class UserService(
 
         val user: User = authenticationService.getCurrentUser()
         user.changePassword(encodePassword(request.password))
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    fun getRedcards(page: Int, size: Int): PageResponse<RedcardResponse> {
+        return redcardFacade.getRedcards(page, size)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
+        redcardFacade.updateRedcardStatus(request, redcardId)
     }
 }

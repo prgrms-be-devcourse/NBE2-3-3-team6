@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
     kotlin("plugin.jpa") version "1.9.25"
+    kotlin("kapt") version "1.9.25"
     id("org.springframework.boot") version "3.4.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -73,10 +74,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
     // Querydsl
-    implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
-    annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
-    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
+    kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
 
     // Scheduler
 //    implementation("org.springframework.boot:spring-boot-starter-batch")
@@ -99,27 +98,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// Querydsl 설정
-val generated = "src/main/generated"
-
-tasks.withType<JavaCompile> {
-    options.generatedSourceOutputDirectory.set(file(generated))
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs(generated)
-        }
-    }
-}
-
-tasks.named("clean") {
-    delete(file(generated))
-}
-
 kotlin {
     jvmToolchain(17)
+
+    sourceSets.main {
+        kotlin.srcDir("$buildDir/generated/source/kapt/main")
+    }
 
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
