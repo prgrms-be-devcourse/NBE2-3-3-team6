@@ -11,7 +11,7 @@ data class FundingWriteRequest(
     var fundingContent: String? = null, // 게시글 내용
 
     @field:NotBlank(message = "필요한 헌혈증 개수를 입력해주세요")
-    var targetAmount: Int? = null, // 목표 개수
+    var targetAmount: Int, // 목표 개수
 
     @field:NotBlank(message = "시작 일자를 입력해주세요")
     var donationStartDate: LocalDate? = null, // 기부 시작 일자
