@@ -45,7 +45,6 @@ class RedcardService(
             redcardStatus = RedcardStatus.AVAILABLE,
             ownerType = OwnerType.USER
         )
-
         redcardRepository.save(redcard)
     }
 
@@ -94,4 +93,9 @@ class RedcardService(
         redcardRepository.saveAll(redcardList) // 변경 사항 저장
     }
 
+    @Transactional
+    fun updateRedCardCancel(redcardId: Long) {
+        val redcard = getRedcardById(redcardId)
+        redcard.changeRedcardStatus(RedcardStatus.AVAILABLE)
+    }
 }
