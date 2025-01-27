@@ -1,5 +1,6 @@
 package com.redbox.domain.user.controller
 
+import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.service.UserService
 import jakarta.validation.Valid
@@ -59,5 +60,11 @@ class UserController(
         // 요청 객체를 그대로 서비스에 넘김
         val response = userService.findUserId(request)
         return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/users/my-info/redcards")
+    fun registerRedCard(@RequestBody @Valid request: RegisterRedcardRequest): ResponseEntity<Void> {
+        userService.registerRedCard(request)
+        return ResponseEntity.ok().build()
     }
 }

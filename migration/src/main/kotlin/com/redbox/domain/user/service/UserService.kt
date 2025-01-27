@@ -2,6 +2,8 @@ package com.redbox.domain.user.service
 
 import com.redbox.domain.auth.dto.CustomUserDetails
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.redcard.dto.RegisterRedcardRequest
+import com.redbox.domain.redcard.facade.RedcardFacade
 import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.entity.User
 import com.redbox.domain.user.exception.DuplicateEmailException
@@ -25,26 +27,11 @@ class UserService(
     private val emailVerificationCodeRepository: EmailVerificationCodeRepository,
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
+    private val redcardFacade: RedcardFacade,
     //private val donationGroupRepository: DonationGroupRepository,
     //private val fundingRepository: FundingRepository,
 
 ) {
-    // 현재 로그인한 사용자의 전체 정보 조회
-    fun getCurrentUser(): User {
-        val userDetails: CustomUserDetails = getCustomUserDetails()
-        return userRepository.findByEmail(userDetails.getUsername()) ?: throw UserNotFoundException()
-    }
-
-    // 현재 로그인한 user_id
-    fun getCurrentUserId(): Long {
-        return getCustomUserDetails().getUserId()
-    }
-
-    private fun getCustomUserDetails(): CustomUserDetails {
-        val authentication = SecurityContextHolder.getContext().authentication
-        return authentication.principal as CustomUserDetails
-    }
-
     private fun isDuplicatedEmail(email: String): Boolean {
         return userRepository.existsByEmail(email)
     }
@@ -129,5 +116,9 @@ class UserService(
         val email = userRepository.findByNameAndPhoneNumber(name, phoneNumber)?.email ?: throw UserNotFoundException()
 
         return FindIdResponse(email)
+    }
+
+    fun registerRedCard(request: RegisterRedcardRequest) {
+        redcardFacade.registerRedCard(request)
     }
 }
