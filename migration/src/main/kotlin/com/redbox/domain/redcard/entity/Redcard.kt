@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Table(name = "redcards")
 class Redcard(
     @Column(name = "user_id")
-    var userId: Long,
+    var userId: Long?,
 
     @Column(nullable = false)
     var donationDate: LocalDate,
@@ -35,7 +35,7 @@ class Redcard(
         private set
 
     // 헌혈증 소지자가 바뀔 때 사용하는 메서드
-    fun updateUser(userId: Long) {
+    fun updateUser(userId: Long?) {
         this.userId = userId
     }
 
