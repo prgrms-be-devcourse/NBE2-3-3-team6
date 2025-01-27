@@ -37,7 +37,8 @@ class DonationService(
         donationDetailRepository.saveAll(donationDetails)
 
         // redCard 소유자 변경
-        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donationRequest.receiveId)
+        // TODO: funding 기부시 다르게 처리해야함 (전략패턴 도입 고려 중)
+        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getReceiverId(donationRequest))
 
         return savedDonation
     }
