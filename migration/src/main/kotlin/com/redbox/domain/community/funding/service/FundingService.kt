@@ -84,6 +84,7 @@ class FundingService(
     }
 
     // 게시글 상세 조회 (조회수 증가 O)
+    @Transactional
     fun viewFunding(fundingId: Long): FundingDetailResponse {
         val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
         funding.incrementHits()
@@ -129,5 +130,14 @@ class FundingService(
         require(funding.userId == userId){
             throw UnauthorizedAccessException()
         }
+    }
+
+    // 게시글 삭제
+    @Transactional
+    fun deleteFunding(fundingId: Long) {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        funding.drop()
+        funding.dropProgress()
+        fundingRepository.save(funding)
     }
 }
