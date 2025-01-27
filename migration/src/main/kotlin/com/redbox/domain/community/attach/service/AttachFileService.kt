@@ -10,6 +10,7 @@ import com.redbox.domain.community.attach.strategy.FileAttachStrategy
 import com.redbox.domain.community.attach.strategy.FileAttachStrategyFactory
 import com.redbox.global.infra.s3.S3Service
 import com.redbox.global.util.FileUtils
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -19,7 +20,12 @@ class AttachFileService(
     private val s3Service: S3Service,
     private val fileAttachStrategyFactory: FileAttachStrategyFactory,
     private val attachFileRepository: AttachFileRepository,
+    private val redisTemplate: RedisTemplate<String, Object>,
 ) {
+    companion object {
+        private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
+    }
+
     fun getFileDownloadUrl(postId: Long, fileId: Long?): String {
         val attachFile = attachFileRepository.findById(fileId!!)
             .orElseThrow { AttachFileNotFoundException() }
@@ -60,5 +66,20 @@ class AttachFileService(
         }*/
 
         return AttachFileResponse(attachFile)
+    }
+
+    @Transactional
+    fun removeFile(category: Category, postId: Long, fileId: Long) {
+        val attachFile = attachFileRepository.findById(fileId)
+            .orElseThrow { AttachFileNotFoundException() } ?: throw FileNotBelongException()
+
+        validateFileOwnership(attachFile, postId)
+        s3Service.deleteFile(category, postId, attachFile.newFilename)
+
+        if (category.equals(Category.NOTICE)) {
+            redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, postId))
+        }
+
+        attachFileRepository.delete(attachFile)
     }
 }
