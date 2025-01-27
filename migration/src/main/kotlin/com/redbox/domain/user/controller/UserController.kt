@@ -6,6 +6,7 @@ import com.redbox.domain.user.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -62,9 +63,17 @@ class UserController(
         return ResponseEntity.ok(response)
     }
 
+    // TODO: auth 쪽 완성 시 테스트 진행
     @PostMapping("/users/my-info/redcards")
     fun registerRedCard(@RequestBody @Valid request: RegisterRedcardRequest): ResponseEntity<Void> {
         userService.registerRedCard(request)
+        return ResponseEntity.ok().build()
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @DeleteMapping("/auth/drop-info")
+    fun dropUser(@RequestBody @Valid request: DropInfoRequest): ResponseEntity<Void> {
+        userService.dropUser(request)
         return ResponseEntity.ok().build()
     }
 }
