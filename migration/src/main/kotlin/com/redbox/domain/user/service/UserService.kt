@@ -1,9 +1,7 @@
 package com.redbox.domain.user.service
 
-import com.redbox.domain.user.dto.SignupRequest
-import com.redbox.domain.user.dto.SignupResponse
-import com.redbox.domain.user.dto.ValidateVerificationCodeRequest
-import com.redbox.domain.user.dto.VerificationCodeRequest
+import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.exception.DuplicateEmailException
 import com.redbox.domain.user.exception.EmailNotVerifiedException
 import com.redbox.domain.user.repository.EmailVerificationCodeRepository
@@ -84,5 +82,24 @@ class UserService(
 
         userRepository.save(user)
         return SignupResponse(user.email, user.name)
+    }
+
+    @Transactional
+    fun resetPassword(request: ResetPasswordRequest) {
+        // 사용자 조회
+        val user = userRepository.findByEmailAndName(request.email, request.username) ?: throw UserNotFoundException()
+
+        // 임시 비밀번호 생성
+        val tempPassword = RandomCodeGenerator.generateRandomCode()
+        val encodedPassword = encodePassword(tempPassword)
+
+        // 비밀번호 변경
+        user.changePassword(encodedPassword)
+        userRepository.save(user)
+
+        // 이메일 전송
+        val subject = "[Redbox] 임시 비밀번호 안내"
+        val content = createEmailContent("temp-password-email", "tempPassword", tempPassword)
+        emailSender.sendMail(request.email, subject, content)
     }
 }
