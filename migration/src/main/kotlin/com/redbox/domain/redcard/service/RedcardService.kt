@@ -5,6 +5,7 @@ import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.exception.DuplicateSerialNumberException
+import com.redbox.domain.redcard.exception.RedcardNotFoundException
 import com.redbox.domain.redcard.repository.RedcardRepository
 // import com.redbox.domain.user.service.UserService
 import com.redbox.global.entity.PageResponse
@@ -48,4 +49,16 @@ class RedcardService(
         val redcards = redcardRepository.findAllByUserId(userId, pageable)
         return PageResponse(redcards)
     }
+
+    fun getRedcardById(redcardId: Long): Redcard {
+        return redcardRepository.findById(redcardId).orElseThrow { RedcardNotFoundException() }
+    }
+
+    fun updateRedCardUser(redcardId: Long, receiverId: Long) {
+        val redcard = getRedcardById(redcardId)
+        redcard.updateUser(receiverId)
+        redcard.changeRedcardStatus(RedcardStatus.AVAILABLE)
+    }
+
+
 }
