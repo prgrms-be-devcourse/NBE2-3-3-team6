@@ -9,5 +9,6 @@ interface Donation {
     fun createDonationDetails(donationGroupId: Long, redCards: List<Redcard>): List<DonationDetail>
     fun getDonationType(): DonationType
     fun getOwnerType(): OwnerType
+    fun getReceiverId(donationRequest: DonationRequest): Long?
 
 }
