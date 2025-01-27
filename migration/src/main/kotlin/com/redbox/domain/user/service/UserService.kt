@@ -119,6 +119,7 @@ class UserService(
         return FindIdResponse(email)
     }
 
+    // TODO: auth 쪽 완성 시 테스트 진행
     fun registerRedCard(request: RegisterRedcardRequest) {
         redcardFacade.registerRedCard(request)
     }
@@ -137,8 +138,22 @@ class UserService(
         currentUser.inactive()
     }
 
+    // TODO: auth 쪽 완성 시 테스트 진행
     fun getUserInfo(): UserInfoResponse {
         val user: User = authenticationService.getCurrentUser()
+        return UserInfoResponse(user)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @Transactional
+    fun updateUserInfo(request: UpdateUserInfoRequest): UserInfoResponse {
+        val user: User = authenticationService.getCurrentUser()
+        user.changeName(request.name)
+        user.changePhoneNumber(request.phoneNumber)
+        user.changeRoadAddress(request.roadAddress)
+        user.changeExtraAddress(request.extraAddress)
+        user.changeDetailAddress(request.detailAddress)
+        userRepository.save(user)
         return UserInfoResponse(user)
     }
 }

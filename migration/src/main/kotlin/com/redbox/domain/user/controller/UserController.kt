@@ -74,8 +74,15 @@ class UserController(
         return ResponseEntity.ok().build()
     }
 
+    // TODO: auth 쪽 완성 시 테스트 진행
     @GetMapping("/users/my-info")
     fun getUserInfo(): ResponseEntity<UserInfoResponse> {
         return ResponseEntity.ok(userService.getUserInfo())
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PutMapping("/users/my-info")
+    fun updateUserInfo(@RequestBody @Valid request: UpdateUserInfoRequest): ResponseEntity<UserInfoResponse> {
+        return ResponseEntity.ok(userService.updateUserInfo(request))
     }
 }
