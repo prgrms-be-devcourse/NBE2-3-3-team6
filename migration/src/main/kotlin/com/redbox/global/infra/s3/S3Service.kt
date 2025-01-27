@@ -1,15 +1,18 @@
 package com.redbox.global.infra.s3
 
 import com.redbox.domain.community.attach.entity.Category
+import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import software.amazon.awssdk.core.sync.RequestBody.fromInputStream
+import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.*
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import java.io.IOException
+import java.lang.IllegalArgumentException
 import java.net.URLEncoder.encode
 import java.nio.charset.StandardCharsets
 import java.time.Duration.ofMinutes
@@ -21,19 +24,19 @@ class S3Service {
     private val s3Presigner: S3Presigner? = null
 
     @Value("test")
-    private val bucket: String? = null
+    private lateinit var bucket: String
 
     fun uploadFile(file: MultipartFile, category: Category, id: Long, fileName: String) {
         try {
             val request = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(getKey(category, id, fileName))
-                .contentType(file.getContentType())
+                .contentType(file.contentType)
                 .build()
 
-            s3Client!!.putObject(
+            s3Client?.putObject(
                 request,
-                fromInputStream(file.getInputStream(), file.getSize())
+                fromInputStream(file.inputStream, file.size)
             )
         } catch (e: IOException) {
             throw RuntimeException(e)
@@ -46,7 +49,7 @@ class S3Service {
             .key(getKey(category, id, fileName))
             .build()
 
-        s3Client!!.deleteObject(request)
+        s3Client?.deleteObject(request)
 
         // 빈 디렉토리 확인 후 삭제
         deleteDirectory(category, id)
@@ -62,7 +65,7 @@ class S3Service {
                 .prefix(prefix)
                 .build()
 
-            val listResponse: ListObjectsV2Response = s3Client!!.listObjectsV2(listRequest)
+            val listResponse: ListObjectsV2Response = s3Client?.listObjectsV2(listRequest) ?: ListObjectsV2Response.builder().build()
 
             // 객체가 없다면 디렉토리도 삭제
             if (listResponse.contents().isEmpty()) {
@@ -71,7 +74,7 @@ class S3Service {
                     .key(prefix)
                     .build()
 
-                s3Client.deleteObject(deleteRequest)
+                s3Client?.deleteObject(deleteRequest)
             }
         } catch (e: Exception) {
             throw S3Exception("Error while deleting directory", e)
