@@ -13,4 +13,7 @@ interface UserRepository: JpaRepository<User, Id> {
     fun findByEmailAndName(email: String, name: String): User?
 
     fun findByNameAndPhoneNumber(name: String, phoneNumber: String): User?
+
+    // 이메일을 기반으로 사용자 정보를 조회
+    fun findByEmail(email: String): User?
 }
