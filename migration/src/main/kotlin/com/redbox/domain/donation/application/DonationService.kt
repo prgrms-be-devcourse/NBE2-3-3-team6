@@ -4,6 +4,7 @@ import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.entity.Redcard
+import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
 import com.redbox.domain.donation.repository.DonationGroupRepository
 import jakarta.transaction.Transactional
@@ -30,19 +31,23 @@ class DonationService(
             Redcard(4,1),
         )
 
-        // TODO: ERROR
+        // redCards 에 대한 에러처리는 Redcard service에서 처리할 예정
         if (redCards.isEmpty() || redCards.size < donationRequest.quantity) {
             throw IllegalArgumentException("Invalid donation request")
         }
 
-        val donation = donationFactory.createDonation(type)
+        if (donorId == donationRequest.receiveId) {
+            throw SelfDonationException();
+        }
 
+        val donation = donationFactory.createDonation(type)
         // donationGroup 저장
         val donationGroup = donation.createDonationGroup(donorId, donationRequest)
         val savedDonation = donationGroupRepository.save(donationGroup)
 
         // donationDetail 저장
         val donationDetails = donation.createDonationDetails(savedDonation.id!!, redCards)
+        // redCard 소유자 변경
         donation.updateRedCardEntities(donationRequest.receiveId, redCards)
         donationDetailRepository.saveAll(donationDetails)
 

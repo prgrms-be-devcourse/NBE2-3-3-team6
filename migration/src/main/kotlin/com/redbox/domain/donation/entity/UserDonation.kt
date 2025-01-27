@@ -13,7 +13,7 @@ class UserDonation(
             donationRequest.quantity,
             LocalDate.now(),
             donationRequest.comment,
-            DonationType.TO_USER,
+            DonationType.USER,
             DonationStatus.DONE
         )
     }
