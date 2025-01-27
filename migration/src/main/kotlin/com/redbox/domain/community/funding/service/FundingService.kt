@@ -8,6 +8,7 @@ import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.Priority
 import com.redbox.domain.community.funding.exception.FundingNotFoundException
+import com.redbox.domain.community.funding.exception.UnauthorizedAccessException
 import com.redbox.domain.funding.repository.FundingRepository
 import com.redbox.global.entity.PageResponse
 import org.springframework.data.domain.Page
@@ -68,7 +69,7 @@ class FundingService(
         return getFundingDetail(fundingId)
     }
 
-    // 게시글 정보 가져오기 (조회수 증가 X) - 게시글 등록 즉시
+    // 게시글 정보 가져오기 (조회수 증가 X) - 게시글 등록 및 수정 즉시
     fun getFundingDetail(fundingId: Long): FundingDetailResponse {
         var funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
         //val userId = currentUserId
@@ -117,5 +118,16 @@ class FundingService(
         // 저장 후 수정된 기금의 상세 정보 반환
         val modifyFunding = fundingRepository.save(funding)
         return getFundingDetail( modifyFunding.fundingId ?: throw FundingNotFoundException())
+    }
+
+    // 게시글 수정 권한
+    fun modifyAuthorize(fundingId: Long) {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        // val userId: Long = getCurrentUserId() TODO: UserID
+        val userId: Long = 0L
+
+        require(funding.userId == userId){
+            throw UnauthorizedAccessException()
+        }
     }
 }

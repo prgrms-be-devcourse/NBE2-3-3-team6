@@ -4,7 +4,6 @@ import com.redbox.domain.community.funding.dto.FundingDetailResponse
 import com.redbox.domain.community.funding.dto.FundingFilter
 import com.redbox.domain.community.funding.dto.FundingWriteRequest
 import com.redbox.domain.community.funding.dto.ListResponse
-import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import org.thymeleaf.engine.IThrottledTemplateWriterControl
 
 @RestController
 class FundingController(
@@ -55,6 +53,16 @@ class FundingController(
         @RequestBody writeFunding: @Valid FundingWriteRequest
     ): ResponseEntity<FundingDetailResponse> {
         val detailResponse = fundingService.modifyFunding(fundingId, writeFunding)
+        return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
+    }
+
+    // 게시글 수정 내용 확인
+    @GetMapping("/fundings/modify/{fundingId}")
+    fun fundingModify(
+        @PathVariable("fundingId") fundingId: Long,
+    ): ResponseEntity<FundingDetailResponse> {
+        fundingService.modifyAuthorize(fundingId)
+        val detailResponse = fundingService.getFundingDetail(fundingId)
         return ResponseEntity.status(HttpStatus.OK).body(detailResponse)
     }
 }
