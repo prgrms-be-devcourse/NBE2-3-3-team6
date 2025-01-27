@@ -78,4 +78,13 @@ class RedcardService(
         val newStatus = request.validateAndUpdateStatus(redcard.redcardStatus)
         redcard.changeRedcardStatus(newStatus)
     }
+
+    @Transactional
+    fun updateRedCardList(redcardList: List<Redcard>, receiveUserId: Long, ownerType: OwnerType) {
+        redcardList.forEach {
+            it.updateUser(receiveUserId)
+            it.changeOwnerType(ownerType)
+        }
+        redcardRepository.saveAll(redcardList) // 변경 사항 저장
+    }
 }
