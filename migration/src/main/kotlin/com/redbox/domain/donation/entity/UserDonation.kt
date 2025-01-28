@@ -1,6 +1,7 @@
 package com.redbox.domain.donation.entity
 
 import com.redbox.domain.donation.dto.DonationRequest
+import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
 import java.time.LocalDate
@@ -39,5 +40,11 @@ class UserDonation(
 
     override fun getReceiverId(donationRequest: DonationRequest): Long {
         return donationRequest.receiveId
+    }
+
+    override fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest) {
+        if (donorId == donationRequest.receiveId) {
+            throw SelfDonationException();
+        }
     }
 }
