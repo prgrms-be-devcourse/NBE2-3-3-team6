@@ -5,8 +5,7 @@ import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
 import java.time.LocalDate
 
-class UserDonation(
-) : Donation {
+class RedboxDonation() : Donation {
 
     override fun createDonationGroup(donorId: Long, donationRequest: DonationRequest): DonationGroup {
         return DonationGroup(
@@ -15,7 +14,7 @@ class UserDonation(
             donationRequest.quantity,
             LocalDate.now(),
             donationRequest.comment,
-            DonationType.USER,
+            DonationType.REDBOX,
             DonationStatus.DONE
         )
     }
@@ -30,14 +29,14 @@ class UserDonation(
     }
 
     override fun getDonationType(): DonationType {
-        return DonationType.USER
+        return DonationType.REDBOX
     }
 
     override fun getOwnerType(): OwnerType {
-        return OwnerType.USER
+        return OwnerType.REDBOX
     }
 
-    override fun getReceiverId(donationRequest: DonationRequest): Long {
-        return donationRequest.receiveId
+    override fun getReceiverId(donationRequest: DonationRequest): Long? {
+        return null;
     }
 }

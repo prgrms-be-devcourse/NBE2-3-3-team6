@@ -7,6 +7,7 @@ import java.time.LocalDate
 @Entity
 @Table(name = "redcards")
 class Redcard(
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "redcard_id")
@@ -27,7 +28,7 @@ class Redcard(
 
 ) : BaseEntity() {
 
-    var userId: Long = userId
+    var userId: Long? = userId
         protected set
 
     @Enumerated(EnumType.STRING)
@@ -38,8 +39,7 @@ class Redcard(
     var ownerType: OwnerType = ownerType
         protected set
 
-    // 상태 변경 메서드
-    fun updateUser(userId: Long) {
+    fun updateUser(userId: Long?) {
         this.userId = userId
     }
 

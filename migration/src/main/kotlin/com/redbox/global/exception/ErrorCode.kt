@@ -76,7 +76,7 @@ enum class ErrorCode(
 
     // 기부
     NOT_FOUND_DONATION_TYPE(HttpStatus.NOT_FOUND, "기부 타입을 찾을 수 없습니다."),
-    INVALID_DONATION_AMOUNT(HttpStatus.BAD_REQUEST, "보유량보다 많은 수를 기부할 수 없습니다."),
+    INVALID_DONATION_AMOUNT(HttpStatus.BAD_REQUEST, "보유한 헌혈증이 부족합니다."),
     DONATION_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST, "기부가 확정되어 취소할 수 없습니다."),
     NOT_FOUND_DONATION_GROUP(HttpStatus.NOT_FOUND, "해당 게시글에 대한 기부 이력이 없습니다"),
     DONATION_DUPLICATE(HttpStatus.BAD_REQUEST, "이미 기부한 게시글입니다."),
