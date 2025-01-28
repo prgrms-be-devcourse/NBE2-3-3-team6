@@ -10,5 +10,6 @@ interface Donation {
     fun getDonationType(): DonationType
     fun getOwnerType(): OwnerType
     fun getReceiverId(donationRequest: DonationRequest): Long?
+    fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest)
 
 }

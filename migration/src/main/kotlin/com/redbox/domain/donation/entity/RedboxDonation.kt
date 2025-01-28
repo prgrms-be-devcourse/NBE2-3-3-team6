@@ -39,4 +39,7 @@ class RedboxDonation() : Donation {
     override fun getReceiverId(donationRequest: DonationRequest): Long? {
         return null;
     }
+
+    override fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest) {
+    }
 }

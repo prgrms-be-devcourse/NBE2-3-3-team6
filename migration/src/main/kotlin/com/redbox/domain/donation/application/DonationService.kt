@@ -2,12 +2,13 @@ package com.redbox.domain.donation.application
 
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.DonationRequest
-import com.redbox.domain.donation.dto.DonationResponse
+import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
 import com.redbox.domain.donation.repository.DonationGroupRepository
+import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.service.RedcardService
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
@@ -27,28 +28,35 @@ class DonationService(
 
     @Transactional
     fun processDonation(type: String, donationRequest: DonationRequest): DonationGroup {
-        // donor 에 대한 검증 ( 자기 자신에게 기부 막기, 기부 수량에 대한 검증 )
-        // donorId (securityHolder 에서 가져오기)
+        // TODO: donorId (securityHolder 에서 가져오기)
         var donorId: Long = 1L
-        if (donorId == donationRequest.receiveId) {
-            throw SelfDonationException();
-        }
+
         val redCards = redcardService.getAvailableRedcardList(donorId, donationRequest.quantity)
 
         val donation = donationFactory.createDonation(type)
+        donation.validateSelfDonate(donorId, donationRequest)
         // donationGroup 저장
-        val donationGroup = donation.createDonationGroup(donorId, donationRequest)
-        val savedDonation = donationGroupRepository.save(donationGroup)
+        val donationGroup = saveDonationGroup(donation, donorId, donationRequest)
+        val donationGroupId = requireNotNull(donationGroup.id) { "DonationGroup 저장 실패" }
 
         // donationDetail 저장
-        val donationDetails = donation.createDonationDetails(savedDonation.id!!, redCards)
-        donationDetailRepository.saveAll(donationDetails)
+        saveDonationDetails(donation, donationGroupId, redCards)
 
         // redCard 소유자 변경
         // TODO: funding 기부시 다르게 처리해야함 (전략패턴 도입 고려 중)
         redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getReceiverId(donationRequest))
 
-        return savedDonation
+        return donationGroup
+    }
+
+    fun saveDonationGroup(donation: Donation, donorId: Long, donationRequest: DonationRequest): DonationGroup {
+        val donationGroup = donation.createDonationGroup(donorId, donationRequest)
+        return donationGroupRepository.save(donationGroup)
+    }
+
+    fun saveDonationDetails(donation: Donation, donationGroupId: Long, redCards: List<Redcard>) {
+        val donationDetails = donation.createDonationDetails(donationGroupId, redCards)
+        donationDetailRepository.saveAll(donationDetails)
     }
 
     fun getDonations(
