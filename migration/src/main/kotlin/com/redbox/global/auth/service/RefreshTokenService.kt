@@ -15,4 +15,9 @@ class RefreshTokenService(
         redisTemplate.opsForValue().set(refreshToken, email, ttl, TimeUnit.MILLISECONDS)
     }
 
+    // Refresh Token 존재 여부 확인
+    fun existsByRefreshToken(refreshToken: String): Boolean {
+        return redisTemplate.hasKey(refreshToken) ?: false
+    }
+
 }
