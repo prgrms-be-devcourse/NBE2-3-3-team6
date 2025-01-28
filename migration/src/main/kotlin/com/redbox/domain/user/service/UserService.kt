@@ -181,4 +181,11 @@ class UserService(
     fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
         redcardFacade.updateRedcardStatus(request, redcardId)
     }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    fun checkUser(request: CheckUserRequest): CheckUserResponse {
+        val user: User = userRepository.findByEmail(request.email) ?: throw UserNotFoundException()
+
+        return CheckUserResponse(user.id!!, user.name)
+    }
 }

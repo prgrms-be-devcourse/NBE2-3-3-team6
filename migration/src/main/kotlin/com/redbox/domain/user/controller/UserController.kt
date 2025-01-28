@@ -114,4 +114,14 @@ class UserController(
         userService.updateRedcardStatus(request, redcardId)
         return ResponseEntity.ok().build()
     }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @PostMapping("/auth/email-check")
+    fun checkUserByEmail(
+        @RequestBody request: CheckUserRequest
+    ): ResponseEntity<CheckUserResponse> {
+        val response: CheckUserResponse = userService.checkUser(request)
+
+        return ResponseEntity.ok(response)
+    }
 }
