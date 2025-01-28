@@ -1,6 +1,8 @@
 package com.redbox.domain.user.service
 
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.donation.dto.DonationListResponse
+import com.redbox.domain.donation.facade.DonationFacade
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
@@ -32,7 +34,8 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
     private val redcardFacade: RedcardFacade,
-    private val authenticationService: AuthenticationService
+    private val authenticationService: AuthenticationService,
+    private val donationFacade: DonationFacade
     //private val donationGroupRepository: DonationGroupRepository,
     //private val fundingRepository: FundingRepository,
 
@@ -187,5 +190,11 @@ class UserService(
         val user: User = userRepository.findByEmail(request.email) ?: throw UserNotFoundException()
 
         return CheckUserResponse(user.id!!, user.name)
+    }
+
+    fun getDonations(
+        page: Int, size: Int
+    ): PageResponse<DonationListResponse> {
+        return donationFacade.getDonations(page, size)
     }
 }

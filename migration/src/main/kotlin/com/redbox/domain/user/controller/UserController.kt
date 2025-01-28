@@ -1,5 +1,7 @@
 package com.redbox.domain.user.controller
 
+import com.redbox.domain.donation.dto.DonationListResponse
+import com.redbox.domain.donation.dto.DonationResponse
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
@@ -123,5 +125,14 @@ class UserController(
         val response: CheckUserResponse = userService.checkUser(request)
 
         return ResponseEntity.ok(response)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    @GetMapping("/users/my-info/redcards/donations")
+    fun getDonations(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "6") size: Int
+    ): ResponseEntity<PageResponse<DonationListResponse>> {
+        return ResponseEntity.ok(userService.getDonations(page, size))
     }
 }
