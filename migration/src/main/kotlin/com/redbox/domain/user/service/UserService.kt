@@ -2,6 +2,7 @@ package com.redbox.domain.user.service
 
 import com.redbox.domain.community.funding.exception.UserNotFoundException
 import com.redbox.domain.donation.dto.DonationListResponse
+import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.facade.DonationFacade
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
@@ -196,5 +197,11 @@ class UserService(
         page: Int, size: Int
     ): PageResponse<DonationListResponse> {
         return donationFacade.getDonations(page, size)
+    }
+
+    fun getReceptions(
+        page: Int, size: Int
+    ): PageResponse<ReceptionListResponse> {
+        return donationFacade.getReceptions(page, size)
     }
 }

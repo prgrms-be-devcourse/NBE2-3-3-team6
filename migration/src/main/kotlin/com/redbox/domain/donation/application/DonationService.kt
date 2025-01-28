@@ -3,6 +3,7 @@ package com.redbox.domain.donation.application
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.dto.DonationResponse
+import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
@@ -55,5 +56,12 @@ class DonationService(
     ): PageResponse<DonationListResponse> {
         val pageable: Pageable = PageRequest.of(page - 1, size)
         return PageResponse(donationGroupRepository.findAllWithReceiverNameByDonorId(authenticationService.getCurrentUserId(), pageable))
+    }
+
+    fun getReceptions(
+        page: Int, size: Int
+    ): PageResponse<ReceptionListResponse> {
+        val pageable: Pageable = PageRequest.of(page - 1, size)
+        return PageResponse(donationGroupRepository.findAllWithDonorNameByReceiverId(authenticationService.getCurrentUserId(), pageable))
     }
 }

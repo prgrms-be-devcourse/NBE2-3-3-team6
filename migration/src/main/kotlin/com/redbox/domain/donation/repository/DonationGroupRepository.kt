@@ -1,6 +1,7 @@
 package com.redbox.domain.donation.repository
 
 import com.redbox.domain.donation.dto.DonationListResponse
+import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.DonationGroup
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -29,4 +30,23 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
         donorId: Long,
         pageable: Pageable
     ): Page<DonationListResponse>
+
+    @Query("""
+    SELECT 
+        CASE 
+            WHEN d.donorId = 0 THEN '레드박스' 
+            ELSE u.name 
+        END as donorName,
+        d.donationAmount as donationAmount,
+        d.donationDate as donationDate,
+        d.donationMessage as donationMessage
+    FROM DonationGroup d
+    LEFT JOIN User u ON d.donorId = u.id
+    WHERE d.receiverId = :receiverId
+    AND d.donationStatus = 'DONE'
+    """)
+    fun findAllWithDonorNameByReceiverId(
+        receiverId: Long,
+        pageable: Pageable
+    ): Page<ReceptionListResponse>
 }
