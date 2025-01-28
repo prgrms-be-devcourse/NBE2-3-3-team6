@@ -1,6 +1,8 @@
 package com.redbox.domain.user.service
 
+import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.community.funding.facade.FundingFacade
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.facade.DonationFacade
@@ -36,10 +38,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val redcardFacade: RedcardFacade,
     private val authenticationService: AuthenticationService,
-    private val donationFacade: DonationFacade
-    //private val donationGroupRepository: DonationGroupRepository,
-    //private val fundingRepository: FundingRepository,
-
+    private val donationFacade: DonationFacade,
+    private val fundingFacade: FundingFacade
 ) {
     private fun isDuplicatedEmail(email: String): Boolean {
         return userRepository.existsByEmail(email)
@@ -203,5 +203,11 @@ class UserService(
         page: Int, size: Int
     ): PageResponse<ReceptionListResponse> {
         return donationFacade.getReceptions(page, size)
+    }
+
+    fun getMyRequests(
+        page: Int, size: Int
+    ): PageResponse<FundingListResponse> {
+        return fundingFacade.getMyRequests(page, size)
     }
 }
