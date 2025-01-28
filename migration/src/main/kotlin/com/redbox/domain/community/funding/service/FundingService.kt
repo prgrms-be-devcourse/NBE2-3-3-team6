@@ -1,9 +1,6 @@
 package com.redbox.domain.community.funding.service
 
-import com.redbox.domain.community.funding.dto.FundingDetailResponse
-import com.redbox.domain.community.funding.dto.FundingFilter
-import com.redbox.domain.community.funding.dto.FundingWriteRequest
-import com.redbox.domain.community.funding.dto.ListResponse
+import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.Like
@@ -12,6 +9,7 @@ import com.redbox.domain.community.funding.exception.FundingNotFoundException
 import com.redbox.domain.community.funding.exception.UnauthorizedAccessException
 import com.redbox.domain.community.funding.repository.LikeRepository
 import com.redbox.domain.funding.repository.FundingRepository
+import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -24,8 +22,8 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class FundingService(
     private val fundingRepository: FundingRepository,
-    private val likeRepository: LikeRepository
-
+    private val likeRepository: LikeRepository,
+    private val authenticationService: AuthenticationService
 ) {
     // 게시글 등록
     @Transactional
@@ -176,5 +174,12 @@ class FundingService(
         funding.drop()
         funding.dropProgress()
         fundingRepository.save(funding)
+    }
+
+    fun getMyRequests(
+        page: Int, size: Int
+    ): PageResponse<FundingListResponse> {
+        val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
+        return PageResponse(fundingRepository.findMyFundings(0L, pageable))
     }
 }

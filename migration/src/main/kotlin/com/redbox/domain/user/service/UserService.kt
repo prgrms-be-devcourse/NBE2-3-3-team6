@@ -1,6 +1,11 @@
 package com.redbox.domain.user.service
 
+import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.exception.UserNotFoundException
+import com.redbox.domain.community.funding.facade.FundingFacade
+import com.redbox.domain.donation.dto.DonationListResponse
+import com.redbox.domain.donation.dto.ReceptionListResponse
+import com.redbox.domain.donation.facade.DonationFacade
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
@@ -32,10 +37,9 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
     private val redcardFacade: RedcardFacade,
-    private val authenticationService: AuthenticationService
-    //private val donationGroupRepository: DonationGroupRepository,
-    //private val fundingRepository: FundingRepository,
-
+    private val authenticationService: AuthenticationService,
+    private val donationFacade: DonationFacade,
+    private val fundingFacade: FundingFacade
 ) {
     private fun isDuplicatedEmail(email: String): Boolean {
         return userRepository.existsByEmail(email)
@@ -180,5 +184,30 @@ class UserService(
     // TODO: auth 쪽 완성 시 테스트 진행
     fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
         redcardFacade.updateRedcardStatus(request, redcardId)
+    }
+
+    // TODO: auth 쪽 완성 시 테스트 진행
+    fun checkUser(request: CheckUserRequest): CheckUserResponse {
+        val user: User = userRepository.findByEmail(request.email) ?: throw UserNotFoundException()
+
+        return CheckUserResponse(user.id!!, user.name)
+    }
+
+    fun getDonations(
+        page: Int, size: Int
+    ): PageResponse<DonationListResponse> {
+        return donationFacade.getDonations(page, size)
+    }
+
+    fun getReceptions(
+        page: Int, size: Int
+    ): PageResponse<ReceptionListResponse> {
+        return donationFacade.getReceptions(page, size)
+    }
+
+    fun getMyRequests(
+        page: Int, size: Int
+    ): PageResponse<FundingListResponse> {
+        return fundingFacade.getMyRequests(page, size)
     }
 }
