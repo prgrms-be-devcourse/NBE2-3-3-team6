@@ -20,4 +20,9 @@ class RefreshTokenService(
         return redisTemplate.hasKey(refreshToken) ?: false
     }
 
+    // Refresh Token 삭제
+    fun deleteRefreshToken(refreshToken: String) {
+        redisTemplate.delete(refreshToken)
+    }
+
 }
