@@ -25,4 +25,9 @@ class RefreshTokenService(
         redisTemplate.delete(refreshToken)
     }
 
+    // Refresh Token으로 이메일 찾기
+    fun getEmailByRefreshToken(refreshToken: String): String? {
+        return redisTemplate.opsForValue().get(refreshToken)
+    }
+
 }
