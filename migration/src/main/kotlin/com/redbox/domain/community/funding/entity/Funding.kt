@@ -34,7 +34,6 @@ class Funding (
     fundingHits: Int = 0,
     fundingLikes: Int = 0,
 
-    //파일 엔터티 필요
     @OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
     var attachFiles: MutableList<AttachFile?> = mutableListOf()
 
