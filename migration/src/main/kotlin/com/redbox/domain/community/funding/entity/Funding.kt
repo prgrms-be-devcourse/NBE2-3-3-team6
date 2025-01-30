@@ -23,11 +23,8 @@ class Funding (
     fundingStatus: FundingStatus,
     progress: FundingStatus,
 
-    fundingDate: LocalDate? = null,
     donationStartDate: LocalDate? = null,
     donationEndDate: LocalDate? = null,
-
-    fundingAttachFile: String? = null,
 
     priority: Priority? = null,
 
@@ -59,16 +56,10 @@ class Funding (
     var progress: FundingStatus = progress
         protected set
 
-    var fundingDate: LocalDate? = fundingDate
-        protected set
-
     var donationStartDate: LocalDate? = donationStartDate
         protected set
 
     var donationEndDate: LocalDate? = donationEndDate
-        protected set
-
-    var fundingAttachFile: String? = fundingAttachFile
         protected set
 
     @Enumerated(EnumType.STRING)
