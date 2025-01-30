@@ -2,7 +2,6 @@ package com.redbox.domain.community.funding.service
 
 import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.domain.community.attach.entity.Category
-import com.redbox.domain.community.attach.repository.AttachFileRepository
 import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
@@ -30,7 +29,6 @@ class FundingService(
     private val likeRepository: LikeRepository,
     private val authenticationService: AuthenticationService,
     private val s3Service: S3Service,
-    private val attachFileRepository: AttachFileRepository
 ) {
     // 게시글 등록
     @Transactional
@@ -60,8 +58,6 @@ class FundingService(
                 val newFilename = FileUtils.generateNewFilename()
                 val extension = FileUtils.getExtension(file)
                 val fullFilename = "$newFilename.$extension"
-                println("#######")
-                println(fullFilename)
                 s3Service.uploadFile(file, Category.FUNDING, savedFunding.fundingId, fullFilename)
 
                 // 파일 데이터 저장
@@ -81,16 +77,14 @@ class FundingService(
 
     // 게시글 정보 가져오기 (조회수 증가 X) - 게시글 등록 및 수정 즉시
     fun getFundingDetail(fundingId: Long): FundingDetailResponse {
-        var funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
-        //val userId = currentUserId
+        val funding: Funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() }
+        //val userId = currentUserId // TODO : UserID
+        val userId = 0L
 
-        // TODO : 좋아요 처리
-        // 좋아요 여부 조회
-        //val like = likesRepository!!.findByUserIdAndFundingId(userId, fundingId)
-        //val isLiked = like != null && like.isLiked
+        val like = likeRepository.findByUserIdAndFundingId(userId, fundingId)
+        val isLiked = like != null && like.isLiked
 
-        //return FundingDetailResponse(funding, isLiked)
-        return FundingDetailResponse.from(funding, true)
+        return FundingDetailResponse.from(funding, isLiked)
     }
 
     // 게시글 목록 조회 (페이지 처리)

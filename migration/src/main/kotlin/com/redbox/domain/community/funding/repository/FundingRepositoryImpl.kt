@@ -2,12 +2,14 @@ package com.redbox.domain.community.funding.repository
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.jpa.JPAExpressions
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.redbox.domain.community.funding.dto.Filter
 import com.redbox.domain.community.funding.dto.FundingFilter
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.QFunding
+import com.redbox.domain.community.funding.entity.QLike.like
 import com.redbox.domain.funding.repository.FundingRepositoryCustom
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -45,7 +47,7 @@ class FundingRepositoryImpl(
         }
 
         // 좋아요한 글만 필터링 (옵션이 LIKED일 경우)
-        /*if (fundingFilter.option == Filter.LIKED && userId != null) {
+        if (fundingFilter.option == Filter.LIKED && userId != null) {
             builder.and(
                 JPAExpressions.select(like.fundingId)
                     .from(like)
@@ -55,7 +57,7 @@ class FundingRepositoryImpl(
                     )
                     .exists()
             )
-        }*/
+        }
 
         // 쿼리 실행
         val query = queryFactory
