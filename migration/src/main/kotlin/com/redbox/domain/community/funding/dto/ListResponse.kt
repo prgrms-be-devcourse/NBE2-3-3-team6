@@ -37,7 +37,7 @@ data class ListResponse(
         progressPercent = (funding.targetAmount?.let { funding.currentAmount?.toDouble()?.div(it.toDouble()) })?.times(100) ?: 1.0,
         fundingStatus = funding.fundingStatus,
         progress = funding.progress.text,
-        fundingDate = funding.fundingDate,
+        fundingDate = funding.createdAt?.toLocalDate(),
         fundingHits = funding.fundingHits,
         fundingLikes = funding.fundingLikes
     )
