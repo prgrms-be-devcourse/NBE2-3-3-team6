@@ -3,6 +3,7 @@ package com.redbox.domain.donation.entity
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
+import com.redbox.domain.redcard.entity.RedcardStatus
 import java.time.LocalDate
 
 class RedboxDonation() : Donation {
@@ -41,5 +42,9 @@ class RedboxDonation() : Donation {
     }
 
     override fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest) {
+    }
+
+    override fun getCardStatus(): RedcardStatus {
+        return RedcardStatus.AVAILABLE
     }
 }
