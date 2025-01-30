@@ -1,31 +1,27 @@
 package com.redbox.global.infra.s3
 
 import com.redbox.domain.community.attach.entity.Category
-import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import software.amazon.awssdk.core.sync.RequestBody.fromInputStream
-import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.*
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import java.io.IOException
-import java.lang.IllegalArgumentException
-import java.net.URLEncoder
 import java.net.URLEncoder.encode
 import java.nio.charset.StandardCharsets
 import java.time.Duration.ofMinutes
-import java.util.function.Consumer
 
 @Service
-class S3Service {
-    private val s3Client: S3Client? = null
-    private val s3Presigner: S3Presigner? = null
+class S3Service(
+    private val s3Client: S3Client,
+    private val s3Presigner: S3Presigner,
 
-    @Value("test")
-    private lateinit var bucket: String
+    @Value("\${cloud.aws.s3.bucket}")
+    private val bucket: String,
+) {
 
     fun uploadFile(file: MultipartFile, category: Category, id: Long, fileName: String) {
         try {
@@ -35,7 +31,7 @@ class S3Service {
                 .contentType(file.contentType)
                 .build()
 
-            s3Client?.putObject(
+            s3Client.putObject(
                 request,
                 fromInputStream(file.inputStream, file.size)
             )
@@ -50,7 +46,7 @@ class S3Service {
             .key(getKey(category, id, fileName))
             .build()
 
-        s3Client?.deleteObject(request)
+        s3Client.deleteObject(request)
 
         // 빈 디렉토리 확인 후 삭제
         deleteDirectory(category, id)
@@ -66,7 +62,7 @@ class S3Service {
                 .prefix(prefix)
                 .build()
 
-            val listResponse: ListObjectsV2Response = s3Client?.listObjectsV2(listRequest) ?: ListObjectsV2Response.builder().build()
+            val listResponse: ListObjectsV2Response = s3Client.listObjectsV2(listRequest) ?: ListObjectsV2Response.builder().build()
 
             // 객체가 없다면 디렉토리도 삭제
             if (listResponse.contents().isEmpty()) {
@@ -75,32 +71,27 @@ class S3Service {
                     .key(prefix)
                     .build()
 
-                s3Client?.deleteObject(deleteRequest)
+                s3Client.deleteObject(deleteRequest)
             }
         } catch (e: Exception) {
             throw S3Exception("Error while deleting directory", e)
         }
     }
 
-    // TODO : (수정) 파일 있는 경우, return null
     fun generatePresignedUrl(category: Category, id: Long, fileName: String, originalFilename: String): String {
         try {
             val encodedFilename = encode(originalFilename, StandardCharsets.UTF_8)
 
             val presignRequest: GetObjectPresignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(ofMinutes(10))
-                .getObjectRequest(Consumer<GetObjectRequest.Builder> { b: GetObjectRequest.Builder ->
+                .getObjectRequest{ b: GetObjectRequest.Builder ->
                     b.bucket(bucket)
                         .key(getKey(category, id, fileName))
                         .responseContentDisposition("attachment; filename=\"$encodedFilename\"")
-                })
+                }
                 .build()
 
-            println("s3Presigner: $s3Presigner")
-            println("Generated Key: ${getKey(category, id, fileName)}")
-            println("Generated URL: ${s3Presigner?.presignGetObject(presignRequest)?.url()}")
-
-            return s3Presigner?.presignGetObject(presignRequest)
+            return s3Presigner.presignGetObject(presignRequest)
                 ?.url()
                 .toString()
         } catch (e: Exception) {

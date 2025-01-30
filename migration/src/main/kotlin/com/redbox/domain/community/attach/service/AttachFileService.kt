@@ -20,17 +20,16 @@ class AttachFileService(
     private val s3Service: S3Service,
     private val fileAttachStrategyFactory: FileAttachStrategyFactory,
     private val attachFileRepository: AttachFileRepository,
-    private val redisTemplate: RedisTemplate<String, Object>,
+    // private val redisTemplate: RedisTemplate<String, Object>,
 ) {
-    companion object {
+    /*companion object {
         private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
-    }
+    }*/
 
-    // TODO : (수정) 파일 있는데, null 반환
     fun getFileDownloadUrl(postId: Long, fileId: Long): String {
 
         val attachFile = attachFileRepository.findById(fileId)
-            .filter{it.funding?.fundingId == postId}
+            //.filter{it.funding?.fundingId == postId}
             .orElseThrow { AttachFileNotFoundException() }
 
         validateFileOwnership(attachFile, postId)
@@ -79,9 +78,9 @@ class AttachFileService(
         validateFileOwnership(attachFile, postId)
         s3Service.deleteFile(category, postId, attachFile.newFilename)
 
-        if (category.equals(Category.NOTICE)) {
+        /*if (category.equals(Category.NOTICE)) {
             redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, postId))
-        }
+        }*/
 
         attachFileRepository.delete(attachFile)
     }
