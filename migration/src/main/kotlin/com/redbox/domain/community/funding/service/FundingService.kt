@@ -177,4 +177,9 @@ class FundingService(
         funding.dropProgress()
         fundingRepository.save(funding)
     }
+
+    fun findWriter(fundingId: Long): Long {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        return funding.userId!!
+}
 }
