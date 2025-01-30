@@ -1,5 +1,8 @@
 package com.redbox.domain.community.funding.service
 
+import com.redbox.domain.community.attach.entity.AttachFile
+import com.redbox.domain.community.attach.entity.Category
+import com.redbox.domain.community.attach.repository.AttachFileRepository
 import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
@@ -11,6 +14,8 @@ import com.redbox.domain.community.funding.repository.LikeRepository
 import com.redbox.domain.funding.repository.FundingRepository
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
+import com.redbox.global.infra.s3.S3Service
+import com.redbox.global.util.FileUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -23,7 +28,9 @@ import org.springframework.web.multipart.MultipartFile
 class FundingService(
     private val fundingRepository: FundingRepository,
     private val likeRepository: LikeRepository,
-    private val authenticationService: AuthenticationService
+    private val authenticationService: AuthenticationService,
+    private val s3Service: S3Service,
+    private val attachFileRepository: AttachFileRepository
 ) {
     // 게시글 등록
     @Transactional
@@ -44,29 +51,31 @@ class FundingService(
             priority = Priority.MEDIUM
         )
 
-        // TODO : 파일 처리
-        /*if (files != null && !files.isEmpty()) {
+        val savedFunding = fundingRepository.save(funding)
+        val fundingId = savedFunding.fundingId ?: throw FundingNotFoundException()
+
+        if (files != null && !files.isEmpty()) {
             for (file in files) {
                 // S3에 파일 업로드
                 val newFilename = FileUtils.generateNewFilename()
                 val extension = FileUtils.getExtension(file)
                 val fullFilename = "$newFilename.$extension"
-                s3Service.uploadFile(file, Category.FUNDING, funding.getFundingId(), fullFilename)
+                println("#######")
+                println(fullFilename)
+                s3Service.uploadFile(file, Category.FUNDING, savedFunding.fundingId, fullFilename)
 
                 // 파일 데이터 저장
-                val attachFile: AttachFile = AttachFile.builder()
-                    .category(Category.FUNDING)
-                    .funding(funding)
-                    .originalFilename(file.originalFilename)
-                    .newFilename(fullFilename)
-                    .build()
+                var attachFile = AttachFile(
+                    category = Category.FUNDING,
+                    funding = savedFunding,
+                    originalFilename = requireNotNull(file.originalFilename),
+                    newFilename = fullFilename,
+                )
 
-                funding.addAttachFiles(attachFile)
+                savedFunding.addAttachFiles(attachFile)
             }
-        }*/
+        }
 
-        val savedFunding = fundingRepository.save(funding)
-        val fundingId = savedFunding.fundingId ?: throw FundingNotFoundException()
         return getFundingDetail(fundingId)
     }
 

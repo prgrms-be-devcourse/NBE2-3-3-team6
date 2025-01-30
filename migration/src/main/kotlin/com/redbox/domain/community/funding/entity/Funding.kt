@@ -1,5 +1,6 @@
 package com.redbox.domain.community.funding.entity
 
+import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -26,7 +27,7 @@ class Funding (
     donationStartDate: LocalDate? = null,
     donationEndDate: LocalDate? = null,
 
-    //fundingAttachFile: String? = null,
+    fundingAttachFile: String? = null,
 
     priority: Priority? = null,
 
@@ -34,11 +35,10 @@ class Funding (
     fundingLikes: Int = 0,
 
     //파일 엔터티 필요
-    //@OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
-    //var attachFiles: MutableList<AttachFile?> = mutableListOf()
+    @OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var attachFiles: MutableList<AttachFile?> = mutableListOf()
 
 ) : BaseEntity() {
-
 
     var fundingTitle: String? = fundingTitle
         protected set
@@ -69,8 +69,8 @@ class Funding (
     var donationEndDate: LocalDate? = donationEndDate
         protected set
 
-    //var fundingAttachFile: String? = fundingAttachFile
-    //    protected set
+    var fundingAttachFile: String? = fundingAttachFile
+        protected set
 
     @Enumerated(EnumType.STRING)
     var priority: Priority? = priority
@@ -82,7 +82,6 @@ class Funding (
     var fundingLikes: Int = fundingLikes
         protected set
 
-    /* 파일
     fun addAttachFiles(attachFile: AttachFile) {
         attachFile.validateNull()
         if (attachFile.isDuplicateIn(this.attachFiles)) return
@@ -96,7 +95,7 @@ class Funding (
 
         attachFiles.remove(attachFile)
         attachFile.funding = null
-    } */
+    }
 
     fun updateFunding(
         title: String?,
