@@ -1,10 +1,14 @@
 package com.redbox.domain.community.funding.controller
 
+import com.redbox.domain.community.attach.dto.AttachFileResponse
+import com.redbox.domain.community.attach.entity.Category
+import com.redbox.domain.community.attach.service.AttachFileService
 import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -12,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 class FundingController(
     val fundingService: FundingService,
+    val attachFileService: AttachFileService,
 ) {
     // 게시글 등록
     @PostMapping("/write/funding")
@@ -77,6 +82,32 @@ class FundingController(
         @PathVariable("fundingId") fundingId: Long
     ): ResponseEntity<FundingDetailResponse> {
         fundingService.deleteFunding(fundingId)
+        return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/fundings/{fundingId}/files/{fileId}")
+    fun downloadFile(
+        @PathVariable fundingId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(attachFileService.getFileDownloadUrl(fundingId, fileId))
+    }
+
+    @PostMapping(value = ["/fundings/{fundingId}/files"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun addFile(
+        @PathVariable fundingId: Long,
+        @RequestPart(value = "file") file: MultipartFile
+    ): ResponseEntity<AttachFileResponse> {
+        val response = file.let { attachFileService.addFile(Category.FUNDING, fundingId, it) }
+        return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/fundings/{fundingId}/files/{fileId}")
+    fun removeFile(
+        @PathVariable fundingId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<Void> {
+        attachFileService.removeFile(Category.FUNDING, fundingId, fileId)
         return ResponseEntity.ok().build()
     }
 }

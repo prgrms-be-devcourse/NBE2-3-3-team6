@@ -20,17 +20,19 @@ class AttachFileService(
     private val s3Service: S3Service,
     private val fileAttachStrategyFactory: FileAttachStrategyFactory,
     private val attachFileRepository: AttachFileRepository,
-    private val redisTemplate: RedisTemplate<String, Object>,
+    // private val redisTemplate: RedisTemplate<String, Object>,
 ) {
-    companion object {
+    /*companion object {
         private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
-    }
+    }*/
 
-    fun getFileDownloadUrl(postId: Long, fileId: Long?): String {
-        val attachFile = attachFileRepository.findById(fileId!!)
+    fun getFileDownloadUrl(postId: Long, fileId: Long): String {
+
+        val attachFile = attachFileRepository.findById(fileId)
+            //.filter{it.funding?.fundingId == postId}
             .orElseThrow { AttachFileNotFoundException() }
 
-        validateFileOwnership(attachFile!!, postId)
+        validateFileOwnership(attachFile, postId)
 
         // PreSignedURL 생성
         return s3Service.generatePresignedUrl(
@@ -48,12 +50,12 @@ class AttachFileService(
     }
 
     @Transactional
-    fun addFile(category: Category, postId: Long?, file: MultipartFile): AttachFileResponse {
+    fun addFile(category: Category, postId: Long, file: MultipartFile): AttachFileResponse {
         // S3에 파일 업로드
         val newFilename = FileUtils.generateNewFilename()
         val extension = FileUtils.getExtension(file)
         val fullFilename = "$newFilename.$extension"
-        postId?.let { s3Service.uploadFile(file, category, it, fullFilename) }
+        s3Service.uploadFile(file, category, postId, fullFilename)
 
         // 카테고리에 맞는 전략 사용
         val strategy: FileAttachStrategy? = fileAttachStrategyFactory.getStrategy(category)
@@ -76,9 +78,9 @@ class AttachFileService(
         validateFileOwnership(attachFile, postId)
         s3Service.deleteFile(category, postId, attachFile.newFilename)
 
-        if (category.equals(Category.NOTICE)) {
+        /*if (category.equals(Category.NOTICE)) {
             redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, postId))
-        }
+        }*/
 
         attachFileRepository.delete(attachFile)
     }
