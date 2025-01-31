@@ -10,7 +10,7 @@ data class ListResponse(
 
     val userId: Long?,
     val userEmail: String?,
-    //var userName: String,
+    val userName: String,
 
     val fundingTitle: String?,
     val fundingContent: String?,
@@ -25,11 +25,11 @@ data class ListResponse(
     val fundingHits: Int,
     val fundingLikes: Int,
 ) {
-    constructor(funding: Funding) : this(
+    constructor(funding: Funding, userName: String) : this(
         fundingId = funding.fundingId,
         userId = funding.userId,
         userEmail = funding.createdBy,
-        // userName
+        userName = userName,
         fundingTitle = funding.fundingTitle,
         fundingContent = funding.fundingContent,
         targetAmount = funding.targetAmount,

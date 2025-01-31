@@ -13,7 +13,6 @@ class Funding (
     @Column(name = "funding_id")
     val fundingId: Long? = null,
     val userId: Long? = null,
-    // val userName: String? = null,
 
     fundingTitle: String? = null,
     fundingContent: String? = null,
