@@ -185,4 +185,8 @@ class FundingService(
         val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
         return PageResponse(fundingRepository.findMyFundings(0L, pageable))
     }
+
+    fun getAdminFundings(): List<AdminListResponse> {
+        return fundingRepository.findAllByStatusRequest()
+    }
 }
