@@ -36,4 +36,9 @@ class AdminController(
         val detailResponse = adminService.getFundingDetail(fundingId)
         return ResponseEntity.ok(detailResponse)
     }
+
+    @GetMapping("/admin/hot")
+    fun getHotFundings(): ResponseEntity<List<AdminListResponse>> {
+        return ResponseEntity.ok(adminService.getHotFundings())
+    }
 }

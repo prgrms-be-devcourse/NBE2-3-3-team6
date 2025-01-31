@@ -213,6 +213,7 @@ class FundingService(
         fundingRepository.save(changeFunding)
     }
 
+    @Transactional(readOnly = true)
     fun getAdminFundingDetail(
         fundingId: Long
     ): AdminDetailResponse {
@@ -238,5 +239,9 @@ class FundingService(
             content = fundingDetail.content,
             attachFiles = attachFiles
         )
+    }
+
+    fun getHotFundings(): List<AdminListResponse> {
+        return fundingRepository.findTop5FundingWithLikeCount()
     }
 }

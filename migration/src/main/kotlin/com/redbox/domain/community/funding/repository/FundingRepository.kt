@@ -79,4 +79,18 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     WHERE f.fundingId = :fundingId
     """)
     fun findDetailById(fundingId: Long): AdminDetailProjection?
+
+    @Query("""
+    SELECT f.fundingId as id, 
+           f.fundingTitle as title, 
+           u.name as author,
+           f.createdAt as date, 
+           '승인' as status 
+    FROM Funding f
+    LEFT JOIN User u ON f.userId = u.id
+    WHERE f.fundingStatus = 'APPROVE' 
+    AND f.progress = 'IN_PROGRESS' 
+    order by f.fundingLikes desc limit 5
+    """)
+    fun findTop5FundingWithLikeCount(): List<AdminListResponse>
 }

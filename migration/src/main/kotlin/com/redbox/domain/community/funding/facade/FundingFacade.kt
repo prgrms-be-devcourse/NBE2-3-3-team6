@@ -32,4 +32,8 @@ class FundingFacade(
     ): AdminDetailResponse {
         return fundingService.getAdminFundingDetail(fundingId)
     }
+
+    fun getHotFundings(): List<AdminListResponse> {
+        return fundingService.getHotFundings()
+    }
 }
