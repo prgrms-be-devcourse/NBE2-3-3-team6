@@ -15,11 +15,11 @@ class Notice(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    val user: User,
+    val user: User? = null,
 
     noticeTitle: String,
     noticeContent: String,
-    noticeHits: Int,
+    noticeHits: Int? = 0,
 
     @OneToMany(mappedBy = "notice", cascade = [CascadeType.ALL], orphanRemoval = true)
     var attachFiles: MutableList<AttachFile> = mutableListOf()
@@ -33,7 +33,7 @@ class Notice(
     var noticeContent: String? = noticeContent
         protected set
 
-    var noticeHits: Int = noticeHits
+    var noticeHits: Int? = noticeHits
         protected set
 
     // 연관관계 편의 메서드
