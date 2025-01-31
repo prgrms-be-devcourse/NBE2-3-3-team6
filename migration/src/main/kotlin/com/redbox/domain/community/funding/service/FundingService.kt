@@ -8,6 +8,7 @@ import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.Like
 import com.redbox.domain.community.funding.entity.Priority
 import com.redbox.domain.community.funding.exception.FundingNotFoundException
+import com.redbox.domain.community.funding.exception.InvalidApproveStatusException
 import com.redbox.domain.community.funding.exception.UnauthorizedAccessException
 import com.redbox.domain.community.funding.repository.LikeRepository
 import com.redbox.domain.funding.repository.FundingRepository
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -180,5 +182,31 @@ class FundingService(
 
     fun getAdminFundings(): List<AdminListResponse> {
         return fundingRepository.findAllByStatusRequest()
+    }
+
+    @Transactional
+    fun approveRequest(
+        fundingId: Long,
+        request: AdminApproveRequest
+    ) {
+        val changeFunding =
+            fundingRepository.findByIdOrNull(fundingId) ?: throw FundingNotFoundException()
+        val approveStatus: String = request.approveStatus
+
+        when (approveStatus) {
+            "승인" -> {
+                changeFunding.approve()
+                changeFunding.inProgress()
+            }
+
+            "거절" -> {
+                changeFunding.reject()
+                changeFunding.rejectProgress()
+            }
+
+            else -> throw InvalidApproveStatusException()
+        }
+
+        fundingRepository.save(changeFunding)
     }
 }
