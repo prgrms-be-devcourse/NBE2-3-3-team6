@@ -250,4 +250,10 @@ class FundingService(
     ): List<AdminListResponse> {
         return fundingRepository.findLikedTop5FundingsByUserId(userId)
     }
+
+    fun getCountByFundingStatus(
+        fundingStatus: FundingStatus
+    ): Int? {
+        return fundingRepository.countByFundingStatus(fundingStatus)
+    }
 }

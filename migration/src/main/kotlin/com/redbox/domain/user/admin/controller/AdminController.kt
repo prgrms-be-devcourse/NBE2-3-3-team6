@@ -3,6 +3,7 @@ package com.redbox.domain.user.admin.controller
 import com.redbox.domain.community.funding.dto.AdminApproveRequest
 import com.redbox.domain.community.funding.dto.AdminDetailResponse
 import com.redbox.domain.community.funding.dto.AdminListResponse
+import com.redbox.domain.user.admin.dto.AdminStatsResponse
 import com.redbox.domain.user.admin.service.AdminService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -45,5 +46,10 @@ class AdminController(
     @GetMapping("/admin/like")
     fun getLikedFundings(): ResponseEntity<List<AdminListResponse>> {
         return ResponseEntity.ok(adminService.getLikedFundings())
+    }
+
+    @GetMapping("/admin/statistics")
+    fun getAdminStats(): ResponseEntity<AdminStatsResponse> {
+        return ResponseEntity.ok(adminService.getAdminStats())
     }
 }

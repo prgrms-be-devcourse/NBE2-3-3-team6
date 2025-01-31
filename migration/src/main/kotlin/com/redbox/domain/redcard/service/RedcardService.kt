@@ -121,4 +121,8 @@ class RedcardService(
             redcard.updateUser(userId)
         }
     }
+
+    fun getCountAllInRedbox(): Int? {
+        return redcardRepository.countAllInRedbox()
+    }
 }

@@ -210,4 +210,8 @@ class UserService(
     ): PageResponse<FundingListResponse> {
         return fundingFacade.getMyRequests(page, size)
     }
+
+    fun getActiveUserCount(): Int? {
+        return userRepository.countActiveUser()
+    }
 }

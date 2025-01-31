@@ -1,6 +1,7 @@
 package com.redbox.domain.community.funding.facade
 
 import com.redbox.domain.community.funding.dto.*
+import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.global.entity.PageResponse
 import org.springframework.stereotype.Component
@@ -41,5 +42,11 @@ class FundingFacade(
         userId: Long
     ): List<AdminListResponse> {
         return fundingService.getLikedFundings(userId)
+    }
+
+    fun getCountByFundingStatus(
+        fundingStatus: FundingStatus
+    ): Int? {
+        return fundingService.getCountByFundingStatus(fundingStatus)
     }
 }

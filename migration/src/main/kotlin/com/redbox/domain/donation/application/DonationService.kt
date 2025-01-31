@@ -72,4 +72,8 @@ class DonationService(
         val pageable: Pageable = PageRequest.of(page - 1, size)
         return PageResponse(donationGroupRepository.findAllWithDonorNameByReceiverId(authenticationService.getCurrentUserId(), pageable))
     }
+
+    fun getSumDonationAmountInRedbox(): Int? {
+        return donationGroupRepository.sumDonationAmountInRedbox()
+    }
 }

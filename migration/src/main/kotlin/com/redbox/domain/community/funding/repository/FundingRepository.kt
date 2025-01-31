@@ -4,6 +4,7 @@ import com.redbox.domain.community.funding.dto.AdminDetailProjection
 import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.entity.Funding
+import com.redbox.domain.community.funding.entity.FundingStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -115,4 +116,7 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     order by l.updatedAt desc limit 5
     """)
     fun findLikedTop5FundingsByUserId(userId: Long): List<AdminListResponse>
+
+    @Query("SELECT COUNT(f) FROM Funding f WHERE f.fundingStatus = :fundingStatus")
+    fun countByFundingStatus(fundingStatus: FundingStatus): Int?
 }
