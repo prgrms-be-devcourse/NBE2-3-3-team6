@@ -1,5 +1,6 @@
 package com.redbox.domain.user.admin.service
 
+import com.redbox.domain.community.funding.dto.AdminApproveRequest
 import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.community.funding.facade.FundingFacade
 import org.springframework.stereotype.Service
@@ -11,5 +12,12 @@ class AdminService(
 
     fun getFundings(): List<AdminListResponse> {
         return fundingFacade.getAdminFundings()
+    }
+
+    fun approveRequest(
+        fundingId: Long,
+        request: AdminApproveRequest
+    ) {
+        fundingFacade.approveRequest(fundingId, request)
     }
 }
