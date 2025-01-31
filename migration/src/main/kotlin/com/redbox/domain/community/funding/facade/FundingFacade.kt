@@ -1,5 +1,6 @@
 package com.redbox.domain.community.funding.facade
 
+import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.global.entity.PageResponse
@@ -14,5 +15,9 @@ class FundingFacade(
         page: Int, size: Int
     ): PageResponse<FundingListResponse> {
         return fundingService.getMyRequests(page, size)
+    }
+
+    fun getAdminFundings(): List<AdminListResponse> {
+        return fundingService.getAdminFundings()
     }
 }

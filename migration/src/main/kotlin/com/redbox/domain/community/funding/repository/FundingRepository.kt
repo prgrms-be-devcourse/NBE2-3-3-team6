@@ -1,5 +1,6 @@
 package com.redbox.domain.funding.repository
 
+import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.entity.Funding
 import org.springframework.data.domain.Page
@@ -30,4 +31,16 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
         WHERE f.userId = :id
     """)
     fun findMyFundings(id: Long, pageable: Pageable): Page<FundingListResponse>
+
+    @Query("""
+        SELECT f.fundingId as id, 
+               f.fundingTitle as title, 
+               u.name as author,
+               f.createdAt as date, 
+               '요청' as status 
+        FROM Funding f
+        LEFT JOIN User u ON f.userId = u.id
+        WHERE f.fundingStatus = 'REQUEST'
+    """)
+    fun findAllByStatusRequest(): List<AdminListResponse>
 }
