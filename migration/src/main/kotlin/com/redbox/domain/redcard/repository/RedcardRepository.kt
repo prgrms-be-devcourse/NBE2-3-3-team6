@@ -5,7 +5,7 @@ import com.redbox.domain.redcard.entity.RedcardStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
-import java.util.Optional
+import org.springframework.data.jpa.repository.Query
 
 interface RedcardRepository : JpaRepository<Redcard, Long> {
 
@@ -18,4 +18,7 @@ interface RedcardRepository : JpaRepository<Redcard, Long> {
     fun findByUserIdAndId(userId: Long, id: Long): Redcard?
 
     fun existsBySerialNumber(serialNumber: String): Boolean
+
+    @Query("SELECT COUNT(r) FROM Redcard r WHERE r.ownerType = 'REDBOX' AND r.userId = 0")
+    fun countAllInRedbox(): Int?
 }

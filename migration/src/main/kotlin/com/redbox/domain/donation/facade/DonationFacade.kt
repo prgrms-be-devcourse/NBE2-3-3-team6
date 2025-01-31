@@ -21,4 +21,8 @@ class DonationFacade(
     ): PageResponse<ReceptionListResponse> {
         return donationService.getReceptions(page, size)
     }
+
+    fun getSumDonationAmountInRedbox(): Int? {
+        return donationService.getSumDonationAmountInRedbox()
+    }
 }
