@@ -68,6 +68,7 @@ enum class ErrorCode(
     TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "Refresh 토큰이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
+    INVALID_TOKEN_CATEGORY(HttpStatus.BAD_REQUEST, "잘못된 토큰 카테고리입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."),
 
     // 레드박스
