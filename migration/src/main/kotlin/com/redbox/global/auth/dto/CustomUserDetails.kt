@@ -1,7 +1,7 @@
 package com.redbox.domain.auth.dto
 
-import com.redbox.domain.user.entity.Status
-import com.redbox.domain.user.entity.User
+import com.redbox.domain.user.user.entity.Status
+import com.redbox.domain.user.user.entity.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
