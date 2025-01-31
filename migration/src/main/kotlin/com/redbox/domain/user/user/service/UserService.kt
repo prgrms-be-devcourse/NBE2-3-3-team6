@@ -10,7 +10,6 @@ import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.redcard.facade.RedcardFacade
-import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.user.entity.User
 import com.redbox.domain.user.user.exception.DuplicateEmailException
 import com.redbox.domain.user.user.exception.EmailNotVerifiedException

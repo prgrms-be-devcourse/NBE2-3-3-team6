@@ -6,7 +6,6 @@ import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.redcard.dto.RedcardResponse
 import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
-import com.redbox.domain.user.dto.*
 import com.redbox.domain.user.user.service.UserService
 import com.redbox.domain.user.user.dto.*
 import com.redbox.global.entity.PageResponse
