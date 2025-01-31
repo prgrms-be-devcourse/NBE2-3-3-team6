@@ -1,6 +1,7 @@
 package com.redbox.domain.user.admin.controller
 
 import com.redbox.domain.community.funding.dto.AdminApproveRequest
+import com.redbox.domain.community.funding.dto.AdminDetailResponse
 import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.user.admin.service.AdminService
 import org.springframework.http.ResponseEntity
@@ -27,5 +28,12 @@ class AdminController(
     ): ResponseEntity<Void> {
         adminService.approveRequest(fundingId, request)
         return ResponseEntity.ok().build()
+    }
+
+    // 요청 게시글 상세조회(게시글 상세조회와 동일)
+    @GetMapping("/admin/fundings/{fundingId}")
+    fun detailFunding(@PathVariable fundingId: Long): ResponseEntity<AdminDetailResponse> {
+        val detailResponse = adminService.getFundingDetail(fundingId)
+        return ResponseEntity.ok(detailResponse)
     }
 }
