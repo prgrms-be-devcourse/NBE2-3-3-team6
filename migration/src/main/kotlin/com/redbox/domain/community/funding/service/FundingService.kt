@@ -33,12 +33,9 @@ class FundingService(
     // 게시글 등록
     @Transactional
     fun createFunding(fundingWriteRequest: FundingWriteRequest, files: MutableList<MultipartFile>?): FundingDetailResponse {
-        // val name: String = userRepository.findNameById(getCurrentUserId()).orElseThrow { UserNotFoundException() }
 
-        var funding = Funding(
-            //userId = getCurrentUserId(),
-            userId = 0L,
-            //userName = name,
+        val funding = Funding(
+            userId = authenticationService.getCurrentUserId(),
             fundingTitle = fundingWriteRequest.fundingTitle,
             fundingContent = fundingWriteRequest.fundingContent,
             targetAmount = fundingWriteRequest.targetAmount,
@@ -67,35 +64,34 @@ class FundingService(
                     originalFilename = requireNotNull(file.originalFilename),
                     newFilename = fullFilename,
                 )
-
                 savedFunding.addAttachFiles(attachFile)
             }
         }
-
         return getFundingDetail(fundingId)
     }
 
     // 게시글 정보 가져오기 (조회수 증가 X) - 게시글 등록 및 수정 즉시
     fun getFundingDetail(fundingId: Long): FundingDetailResponse {
         val funding: Funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() }
-        //val userId = currentUserId // TODO : UserID
-        val userId = 0L
+        val userId = authenticationService.getCurrentUserId()
+        val userName = fundingRepository.findUserNameByFundingId(fundingId) ?: "Unknown"
 
         val like = likeRepository.findByUserIdAndFundingId(userId, fundingId)
         val isLiked = like != null && like.isLiked
 
-        return FundingDetailResponse.from(funding, isLiked)
+        return FundingDetailResponse.from(funding, userName, isLiked)
     }
 
     // 게시글 목록 조회 (페이지 처리)
     fun getFundingList(page: Int, size: Int, funding: FundingFilter): PageResponse<ListResponse> {
         val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
-        //val userId: Long = getCurrentUserId() // TODO : UserID
-        val userId: Long = 0L
+        val userId = authenticationService.getCurrentUserId()
 
         val boardPage: Page<Funding> = fundingRepository.searchBoards(userId, funding, pageable)
-        val responsePage: Page<ListResponse> = boardPage.map { ListResponse(it) }
-
+        val responsePage: Page<ListResponse> = boardPage.map { funding ->
+            val userName = fundingRepository.findUserNameByFundingId(funding.fundingId ?: 0L) ?: "Unknown"
+            ListResponse(funding, userName)
+        }
         return PageResponse(responsePage)
     }
 
@@ -111,8 +107,7 @@ class FundingService(
     @Transactional
     fun likeFunding(fundingId: Long) {
         val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
-        // val userId: Long = getCurrentUserId() TODO: UserID
-        val userId: Long = 0L
+        val userId = authenticationService.getCurrentUserId()
 
         // 좋아요 로직
         val like: Like? = likeRepository.findByUserIdAndFundingId(userId, fundingId)
@@ -120,11 +115,9 @@ class FundingService(
             if (it.isLiked) {
                 it.falseLike()
                 funding.decrementLikes()
-                println(it.isLiked)
             } else {
                 it.trueLike()
                 funding.incrementLikes()
-                println(it.isLiked)
             }
             likeRepository.save(it)
             fundingRepository.save(funding)
@@ -162,8 +155,7 @@ class FundingService(
     // 게시글 수정 권한
     fun modifyAuthorize(fundingId: Long) {
         val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
-        // val userId: Long = getCurrentUserId() TODO: UserID
-        val userId: Long = 0L
+        val userId = authenticationService.getCurrentUserId()
 
         require(funding.userId == userId){
             throw UnauthorizedAccessException()

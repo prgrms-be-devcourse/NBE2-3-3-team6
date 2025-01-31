@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 data class FundingDetailResponse(
     val id: Long,
-    // val userName: String = funding.getUserName() // TODO : user 통해서 name 보내기
+    val userName: String,
     var date: LocalDate,
     var title: String,
     var views: Int,
@@ -23,10 +23,10 @@ data class FundingDetailResponse(
     var attachFileResponses: MutableList<AttachFileResponse>
 ) {
     companion object {
-        fun from(funding: Funding, isLiked: Boolean): FundingDetailResponse {
+        fun from(funding: Funding, userName: String, isLiked: Boolean): FundingDetailResponse {
             return FundingDetailResponse(
                 id = funding.fundingId ?: throw IllegalStateException("Funding ID is null"),
-                // userName = user 통해서 name 보내주기
+                userName = userName,
                 date = funding.createdAt?.toLocalDate() ?: LocalDate.now(),
                 title = funding.fundingTitle ?: "No Title",
                 views = funding.fundingHits,

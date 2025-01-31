@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCustom {
 
@@ -32,7 +33,7 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     """)
     fun findMyFundings(id: Long, pageable: Pageable): Page<FundingListResponse>
 
-
+  
     @Query("""
     SELECT f.fundingId as id, 
            f.fundingTitle as title, 
@@ -44,4 +45,15 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     WHERE f.fundingStatus = 'REQUEST'
     """)
     fun findAllByStatusRequest(): List<AdminListResponse>
+
+  
+    @Query("""
+        SELECT
+            u.name as writer
+        FROM Funding f
+        LEFT JOIN User u ON f.userId = u.id
+        WHERE f.fundingId = :fundingId
+    """)
+
+    fun findUserNameByFundingId(fundingId: Long): String?
 }
