@@ -41,4 +41,9 @@ class AdminController(
     fun getHotFundings(): ResponseEntity<List<AdminListResponse>> {
         return ResponseEntity.ok(adminService.getHotFundings())
     }
+
+    @GetMapping("/admin/like")
+    fun getLikedFundings(): ResponseEntity<List<AdminListResponse>> {
+        return ResponseEntity.ok(adminService.getLikedFundings())
+    }
 }

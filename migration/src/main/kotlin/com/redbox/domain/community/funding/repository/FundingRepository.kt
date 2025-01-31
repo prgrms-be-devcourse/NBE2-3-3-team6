@@ -93,4 +93,26 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     order by f.fundingLikes desc limit 5
     """)
     fun findTop5FundingWithLikeCount(): List<AdminListResponse>
+
+    @Query("""
+    SELECT f.fundingId as id, 
+           f.fundingTitle as title, 
+           u.name as author,
+           f.createdAt as date, 
+           CASE f.fundingStatus
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.REQUEST THEN '요청'
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.APPROVE THEN '승인'
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.REJECT THEN '거절'
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.EXPIRED THEN '만료'
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.IN_PROGRESS THEN '진행중'
+               WHEN com.redbox.domain.community.funding.entity.FundingStatus.DROP THEN '삭제'
+           END as status
+    FROM Funding f
+    LEFT JOIN User u ON f.userId = u.id
+    join fetch Like l on f.fundingId = l.fundingId
+    WHERE l.userId = :userId 
+    and l.isLiked = true 
+    order by l.updatedAt desc limit 5
+    """)
+    fun findLikedTop5FundingsByUserId(userId: Long): List<AdminListResponse>
 }

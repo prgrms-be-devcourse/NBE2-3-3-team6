@@ -36,4 +36,10 @@ class FundingFacade(
     fun getHotFundings(): List<AdminListResponse> {
         return fundingService.getHotFundings()
     }
+
+    fun getLikedFundings(
+        userId: Long
+    ): List<AdminListResponse> {
+        return fundingService.getLikedFundings(userId)
+    }
 }

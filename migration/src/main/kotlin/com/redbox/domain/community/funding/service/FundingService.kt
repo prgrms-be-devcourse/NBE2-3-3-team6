@@ -244,4 +244,10 @@ class FundingService(
     fun getHotFundings(): List<AdminListResponse> {
         return fundingRepository.findTop5FundingWithLikeCount()
     }
+
+    fun getLikedFundings(
+        userId: Long
+    ): List<AdminListResponse> {
+        return fundingRepository.findLikedTop5FundingsByUserId(userId)
+    }
 }
