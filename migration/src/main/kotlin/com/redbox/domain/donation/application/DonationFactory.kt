@@ -2,6 +2,7 @@ package com.redbox.domain.donation.application
 
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.entity.Donation
+import com.redbox.domain.donation.entity.FundingDonation
 import com.redbox.domain.donation.entity.RedboxDonation
 import com.redbox.domain.donation.entity.UserDonation
 import com.redbox.domain.donation.exception.InvalidDonationTypeException
@@ -15,7 +16,7 @@ class DonationFactory {
         return when (type.lowercase(Locale.getDefault())) {
             "user" -> UserDonation()
             "redbox" -> RedboxDonation()
-//            "request"
+            "request" -> FundingDonation()
             else -> throw InvalidDonationTypeException()
         }
     }
