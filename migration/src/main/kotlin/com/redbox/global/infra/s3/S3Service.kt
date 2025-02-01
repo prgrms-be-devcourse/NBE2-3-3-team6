@@ -13,27 +13,27 @@ import java.io.IOException
 import java.net.URLEncoder.encode
 import java.nio.charset.StandardCharsets
 import java.time.Duration.ofMinutes
-import java.util.function.Consumer
 
 @Service
-class S3Service {
-    private val s3Client: S3Client? = null
-    private val s3Presigner: S3Presigner? = null
+class S3Service(
+    private val s3Client: S3Client,
+    private val s3Presigner: S3Presigner,
 
-    @Value("test")
-    private val bucket: String? = null
+    @Value("\${cloud.aws.s3.bucket}")
+    private val bucket: String,
+) {
 
     fun uploadFile(file: MultipartFile, category: Category, id: Long, fileName: String) {
         try {
             val request = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(getKey(category, id, fileName))
-                .contentType(file.getContentType())
+                .contentType(file.contentType)
                 .build()
 
-            s3Client!!.putObject(
+            s3Client.putObject(
                 request,
-                fromInputStream(file.getInputStream(), file.getSize())
+                fromInputStream(file.inputStream, file.size)
             )
         } catch (e: IOException) {
             throw RuntimeException(e)
@@ -46,7 +46,7 @@ class S3Service {
             .key(getKey(category, id, fileName))
             .build()
 
-        s3Client!!.deleteObject(request)
+        s3Client.deleteObject(request)
 
         // 빈 디렉토리 확인 후 삭제
         deleteDirectory(category, id)
@@ -62,7 +62,7 @@ class S3Service {
                 .prefix(prefix)
                 .build()
 
-            val listResponse: ListObjectsV2Response = s3Client!!.listObjectsV2(listRequest)
+            val listResponse: ListObjectsV2Response = s3Client.listObjectsV2(listRequest) ?: ListObjectsV2Response.builder().build()
 
             // 객체가 없다면 디렉토리도 삭제
             if (listResponse.contents().isEmpty()) {
@@ -82,17 +82,16 @@ class S3Service {
         try {
             val encodedFilename = encode(originalFilename, StandardCharsets.UTF_8)
 
-
             val presignRequest: GetObjectPresignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(ofMinutes(10))
-                .getObjectRequest(Consumer<GetObjectRequest.Builder> { b: GetObjectRequest.Builder ->
+                .getObjectRequest{ b: GetObjectRequest.Builder ->
                     b.bucket(bucket)
                         .key(getKey(category, id, fileName))
                         .responseContentDisposition("attachment; filename=\"$encodedFilename\"")
-                })
+                }
                 .build()
 
-            return s3Presigner?.presignGetObject(presignRequest)
+            return s3Presigner.presignGetObject(presignRequest)
                 ?.url()
                 .toString()
         } catch (e: Exception) {

@@ -1,12 +1,13 @@
 package com.redbox.domain.community.funding.dto
 
+import com.redbox.domain.community.attach.dto.AttachFileResponse
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import java.time.LocalDate
 
 data class FundingDetailResponse(
     val id: Long,
-    // val userName: String = funding.getUserName() // user 통해서 name 보내주기 변경
+    val userName: String,
     var date: LocalDate,
     var title: String,
     var views: Int,
@@ -18,16 +19,14 @@ data class FundingDetailResponse(
     var fundingStatus: FundingStatus,
     var status: String,
     var content: String,
-    var isLiked: Boolean
-
-    //var attachFileResponses: List<AttachFileResponse> = funding.getAttachFiles()
-    //    .stream().map { AttachFileResponse() }.toList() // 첨부 파일 리스트
+    var isLiked: Boolean,
+    var attachFileResponses: MutableList<AttachFileResponse>
 ) {
     companion object {
-        fun from(funding: Funding, isLiked: Boolean): FundingDetailResponse {
+        fun from(funding: Funding, userName: String, isLiked: Boolean): FundingDetailResponse {
             return FundingDetailResponse(
                 id = funding.fundingId ?: throw IllegalStateException("Funding ID is null"),
-                // userName = user 통해서 name 보내주기
+                userName = userName,
                 date = funding.createdAt?.toLocalDate() ?: LocalDate.now(),
                 title = funding.fundingTitle ?: "No Title",
                 views = funding.fundingHits,
@@ -37,9 +36,12 @@ data class FundingDetailResponse(
                 currentAmount = funding.currentAmount ?: 0,
                 likes = funding.fundingLikes,
                 fundingStatus = funding.fundingStatus,
-                status = funding.progress.text ?: "No Status",
+                status = funding.progress.text,
                 content = funding.fundingContent ?: "No Content",
-                isLiked = isLiked
+                isLiked = isLiked,
+                attachFileResponses = funding.attachFiles.mapNotNull { attachFile ->
+                    attachFile?.let { AttachFileResponse(it) }
+                }.toMutableList()
             )
         }
     }

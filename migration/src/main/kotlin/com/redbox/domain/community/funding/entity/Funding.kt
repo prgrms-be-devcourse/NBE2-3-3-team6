@@ -1,5 +1,6 @@
 package com.redbox.domain.community.funding.entity
 
+import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -12,7 +13,6 @@ class Funding (
     @Column(name = "funding_id")
     val fundingId: Long? = null,
     val userId: Long? = null,
-    // val userName: String? = null,
 
     fundingTitle: String? = null,
     fundingContent: String? = null,
@@ -22,23 +22,18 @@ class Funding (
     fundingStatus: FundingStatus,
     progress: FundingStatus,
 
-    fundingDate: LocalDate? = null,
     donationStartDate: LocalDate? = null,
     donationEndDate: LocalDate? = null,
-
-    //fundingAttachFile: String? = null,
 
     priority: Priority? = null,
 
     fundingHits: Int = 0,
     fundingLikes: Int = 0,
 
-    //파일 엔터티 필요
-    //@OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
-    //var attachFiles: MutableList<AttachFile?> = mutableListOf()
+    @OneToMany(mappedBy = "funding", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var attachFiles: MutableList<AttachFile?> = mutableListOf()
 
 ) : BaseEntity() {
-
 
     var fundingTitle: String? = fundingTitle
         protected set
@@ -60,17 +55,11 @@ class Funding (
     var progress: FundingStatus = progress
         protected set
 
-    var fundingDate: LocalDate? = fundingDate
-        protected set
-
     var donationStartDate: LocalDate? = donationStartDate
         protected set
 
     var donationEndDate: LocalDate? = donationEndDate
         protected set
-
-    //var fundingAttachFile: String? = fundingAttachFile
-    //    protected set
 
     @Enumerated(EnumType.STRING)
     var priority: Priority? = priority
@@ -82,7 +71,6 @@ class Funding (
     var fundingLikes: Int = fundingLikes
         protected set
 
-    /* 파일
     fun addAttachFiles(attachFile: AttachFile) {
         attachFile.validateNull()
         if (attachFile.isDuplicateIn(this.attachFiles)) return
@@ -96,7 +84,7 @@ class Funding (
 
         attachFiles.remove(attachFile)
         attachFile.funding = null
-    } */
+    }
 
     fun updateFunding(
         title: String?,

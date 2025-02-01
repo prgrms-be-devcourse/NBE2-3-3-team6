@@ -122,4 +122,8 @@ class RedcardService(
             redcard.changeRedcardStatus(cardStatus)
         }
     }
+
+    fun getCountAllInRedbox(): Int? {
+        return redcardRepository.countAllInRedbox()
+    }
 }
