@@ -211,6 +211,10 @@ class UserService(
         return fundingFacade.getMyRequests(page, size)
     }
 
+    fun getUserByEmail(email: String): User {
+        return userRepository.findByEmail(email) ?: throw UserNotFoundException()
+    }
+    
     fun getActiveUserCount(): Int? {
         return userRepository.countActiveUser()
     }

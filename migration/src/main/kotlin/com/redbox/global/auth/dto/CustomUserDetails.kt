@@ -1,21 +1,23 @@
-package com.redbox.global.auth.dto
+package com.redbox.domain.auth.dto
 
+import com.redbox.domain.user.user.entity.Status
+import com.redbox.domain.user.user.entity.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 class CustomUserDetails(
-    private val userId: Long,
-    private val email: String,
-    private val role: String
+    private val user: User
 ) : UserDetails {
 
+    fun getUserId(): Long = user.id!!
+
     override fun getAuthorities(): Collection<GrantedAuthority> =
-        listOf(SimpleGrantedAuthority("ROLE_$role"))
+        listOf(SimpleGrantedAuthority(user.roleType.fullRole))
 
-    override fun getPassword(): String = ""
+    override fun getPassword(): String = user.password
 
-    override fun getUsername(): String = email
+    override fun getUsername(): String = user.email
 
     override fun isAccountNonExpired(): Boolean = true
 
@@ -23,11 +25,5 @@ class CustomUserDetails(
 
     override fun isCredentialsNonExpired(): Boolean = true
 
-    override fun isEnabled(): Boolean = true
-
-    fun getUserId(): Long = userId
-
-    fun getEmail(): String = email
-
-    fun getRole(): String = role
+    override fun isEnabled(): Boolean = user.status == Status.ACTIVE
 }
