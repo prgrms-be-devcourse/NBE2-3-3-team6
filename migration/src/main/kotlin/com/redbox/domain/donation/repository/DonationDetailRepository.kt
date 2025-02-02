@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface DonationDetailRepository : JpaRepository<DonationDetail, Long> {
+    fun findAllByDonationGroupId(donationGroupId: Long): List<DonationDetail>
 }
