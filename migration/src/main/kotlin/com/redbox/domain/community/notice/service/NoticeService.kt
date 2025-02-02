@@ -17,6 +17,7 @@ import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -82,6 +83,12 @@ class NoticeService(
                 )
                 notice.addAttachFiles(attachFile)
             }
+        }
+    }
+
+    private fun deleteAttachFiles(notice: Notice) {
+        for (attachFile in notice.attachFiles) {
+            notice.id?.let { s3Service.deleteFile(attachFile.category, it, attachFile.newFilename) }
         }
     }
 
@@ -181,6 +188,25 @@ class NoticeService(
         }
     }
 
+    // 30분마다 DB에 조회수 반영
+    @Transactional
+    @Scheduled(fixedRate = 1800000)
+    fun syncHitCount() {
+        val keys = redisTemplate.keys(NOTICE_HIT_KEY.replace("%d", "*"))
+
+        for (key in keys) {
+            val noticeId = key.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[2].toLong()
+            val hitsObj = redisTemplate.opsForValue()[key]
+
+            if (hitsObj != null) {
+                val hits = if (hitsObj is Int) hitsObj.toLong() else hitsObj as Long
+
+                noticeRepository.bulkUpdateHit(noticeId, hits)
+                redisTemplate.delete(key)
+            }
+        }
+    }
+
     @Transactional
     fun createNotice(request: CreateNoticeRequest, files: MutableList<MultipartFile>?): NoticeResponse {
         val notice = Notice(
@@ -210,9 +236,7 @@ class NoticeService(
     fun deleteNotice(noticeId: Long) {
         val notice = noticeRepository.findForDelete(noticeId).orElseThrow { NoticeNotFoundException() }
 
-        // TODO : 파일 삭제
-        // deleteAttachFiles(notice)
-
+        deleteAttachFiles(notice)
         noticeRepository.delete(notice)
         // 기존 캐시 삭제
         deleteNoticeAllCaches(noticeId)
