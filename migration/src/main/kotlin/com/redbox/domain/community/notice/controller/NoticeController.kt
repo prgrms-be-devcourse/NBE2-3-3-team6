@@ -57,6 +57,13 @@ class NoticeController(
         return ResponseEntity.ok().body(noticeService.updateNotice(noticeId, request))
     }
 
+    // 공지사항 삭제
+    @DeleteMapping("/notices/{noticeId}")
+    fun deleteNotice(@PathVariable noticeId: Long): ResponseEntity<Void> {
+        noticeService.deleteNotice(noticeId)
+        return ResponseEntity.ok().build()
+    }
+
     // 공지사항 top 5
     @GetMapping("/notices/top5")
     fun getTop5Notices(): ResponseEntity<NoticeListWrapper> {
