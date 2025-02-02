@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -53,6 +54,7 @@ class RedisConfig(
 
         // ObjectMapper 설정
         val objectMapper = ObjectMapper()
+        objectMapper.registerModule(KotlinModule.Builder().build())
         objectMapper.registerModule(JavaTimeModule()) // Java 8의 시간 관련 클래스(LocalDateTime 등) 직렬화 지원
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) // 날짜를 timestamp가 아닌 ISO-8601 형식으로 직렬화
         objectMapper.activateDefaultTyping(
