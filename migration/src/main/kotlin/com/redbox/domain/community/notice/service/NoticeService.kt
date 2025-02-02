@@ -190,4 +190,14 @@ class NoticeService(
         deleteNoticeCaches(notice.id ?: 0L)
         return NoticeResponse.fromNotice(notice)
     }
+
+    @Transactional
+    fun updateNotice(noticeId: Long, request: UpdateNoticeRequest): NoticeResponse {
+        val notice = noticeRepository.findForUpdate(noticeId).orElseThrow { NoticeNotFoundException() }
+        notice.updateNotice(request)
+
+        // 기존 캐시 삭제
+        deleteNoticeCaches(noticeId)
+        return NoticeResponse.fromNotice(notice)
+    }
 }

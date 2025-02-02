@@ -1,10 +1,7 @@
 package com.redbox.domain.community.notice.controller
 
 import com.redbox.domain.community.attach.service.AttachFileService
-import com.redbox.domain.community.notice.dto.CreateNoticeRequest
-import com.redbox.domain.community.notice.dto.NoticeListResponse
-import com.redbox.domain.community.notice.dto.NoticeListWrapper
-import com.redbox.domain.community.notice.dto.NoticeResponse
+import com.redbox.domain.community.notice.dto.*
 import com.redbox.domain.community.notice.service.NoticeService
 import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
@@ -49,6 +46,15 @@ class NoticeController(
             .toUri()
 
         return ResponseEntity.created(location).body(response)
+    }
+
+    // 공지사항 수정
+    @PutMapping("/notices/{noticeId}")
+    fun updateNotice(
+        @PathVariable noticeId: Long,
+        @RequestBody request: @Valid UpdateNoticeRequest
+    ): ResponseEntity<NoticeResponse?>? {
+        return ResponseEntity.ok().body(noticeService.updateNotice(noticeId, request))
     }
 
     // 공지사항 top 5
