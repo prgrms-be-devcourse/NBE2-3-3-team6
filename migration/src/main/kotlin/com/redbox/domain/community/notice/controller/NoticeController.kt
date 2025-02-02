@@ -38,7 +38,7 @@ class NoticeController(
     @PostMapping(value = ["/notices"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createNotice(
         @RequestPart(value = "request") request: @Valid CreateNoticeRequest,
-        @RequestPart(value = "files", required = false) files: MutableList<MultipartFile>?
+        @RequestPart(value = "files", required = false) files: MutableList<MultipartFile>
     ): ResponseEntity<NoticeResponse> {
         val response: NoticeResponse = noticeService.createNotice(request, files)
 
@@ -48,7 +48,7 @@ class NoticeController(
             .buildAndExpand(response.noticeNo)
             .toUri()
 
-        return ResponseEntity.created(location).body<NoticeResponse>(response)
+        return ResponseEntity.created(location).body(response)
     }
 
     // 공지사항 top 5

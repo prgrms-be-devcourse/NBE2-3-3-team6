@@ -51,8 +51,8 @@ class NoticeService(
     }
 
     private fun deleteNoticeCaches(noticeId: Long) {
-        //redisTemplate.delete(NoticeService.TOP5_NOTICES_KEY) // 공지사항 탑 5개의 글에 대한 캐시
-        //redisTemplate.delete(String.format(NoticeService.NOTICE_PAGE_KEY, 1)) // 공지사항 첫페이지에 대한 캐시
+        redisTemplate.delete(TOP5_NOTICES_KEY) // 공지사항 탑 5개의 글에 대한 캐시
+        redisTemplate.delete(String.format(NOTICE_PAGE_KEY, 1)) // 공지사항 첫페이지에 대한 캐시
         redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, noticeId)) // 공지사항 게시글에 대한 캐시
     }
 
@@ -82,14 +82,14 @@ class NoticeService(
 
     fun getCachedTop5Notices(): NoticeListWrapper {
         try {
-            val cachedObject = redisTemplate.opsForValue()[TOP5_NOTICES_KEY]
+            val cachedObject = redisTemplate.opsForValue().get(TOP5_NOTICES_KEY)
 
             if (cachedObject != null) {
-                return cachedObject as NoticeListWrapper
+                return cachedObject as? NoticeListWrapper ?: getTop5NoticesFromDB()
             }
 
             val notices: NoticeListWrapper = getTop5NoticesFromDB()
-            redisTemplate.opsForValue()[TOP5_NOTICES_KEY, notices] = CACHE_TTL
+            redisTemplate.opsForValue().set(TOP5_NOTICES_KEY, notices, CACHE_TTL)
             return notices
         } catch (e: RedisConnectionException) {
             log.error("Redis 연결 실패, DB에서 직접 조회합니다", e)
@@ -101,7 +101,7 @@ class NoticeService(
     private fun updateTop5NoticesCache() {
         val top5Notices: NoticeListWrapper = getTop5NoticesFromDB()
         try {
-            redisTemplate.opsForValue()[TOP5_NOTICES_KEY, top5Notices] = CACHE_TTL
+            redisTemplate.opsForValue().set(TOP5_NOTICES_KEY, top5Notices, CACHE_TTL)
         } catch (e: RedisConnectionException) {
             log.error("Redis 캐시 갱신 실패", e)
         }
@@ -128,7 +128,7 @@ class NoticeService(
             val cacheKey = String.format(NOTICE_PAGE_KEY, page)
             try {
                 val cached = redisTemplate.opsForValue().get(cacheKey)
-                if (cached != null) {
+                if (cached is PageResponse<*>) {
                     return cached as PageResponse<NoticeListResponse>
                 }
 
