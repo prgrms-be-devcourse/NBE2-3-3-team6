@@ -33,7 +33,7 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/login", "/auth/signup", "/auth/logout", "/auth/email/**").permitAll()
+                    .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated() // ✅ 나머지는 인증 필요
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
