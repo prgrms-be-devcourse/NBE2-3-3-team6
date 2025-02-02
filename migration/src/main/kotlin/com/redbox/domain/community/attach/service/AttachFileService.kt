@@ -20,11 +20,11 @@ class AttachFileService(
     private val s3Service: S3Service,
     private val fileAttachStrategyFactory: FileAttachStrategyFactory,
     private val attachFileRepository: AttachFileRepository,
-    // private val redisTemplate: RedisTemplate<String, Object>,
+    private val redisTemplate: RedisTemplate<String, Any>,
 ) {
-    /*companion object {
+    companion object {
         private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
-    }*/
+    }
 
     fun getFileDownloadUrl(postId: Long, fileId: Long): String {
 
@@ -63,9 +63,9 @@ class AttachFileService(
             ?: throw IllegalArgumentException("No strategy found for category: $category")
         attachFileRepository.save(attachFile)
 
-        /*if (category.equals(Category.NOTICE)) {
-            redisTemplate.delete(String.format(AttachFileService.NOTICE_DETAIL_KEY, postId))
-        }*/
+        if (category.equals(Category.NOTICE)) {
+            redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, postId))
+        }
 
         return AttachFileResponse(attachFile)
     }
@@ -78,9 +78,9 @@ class AttachFileService(
         validateFileOwnership(attachFile, postId)
         s3Service.deleteFile(category, postId, attachFile.newFilename)
 
-        /*if (category.equals(Category.NOTICE)) {
+        if (category.equals(Category.NOTICE)) {
             redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, postId))
-        }*/
+        }
 
         attachFileRepository.delete(attachFile)
     }

@@ -1,5 +1,7 @@
 package com.redbox.domain.community.notice.controller
 
+import com.redbox.domain.community.attach.dto.AttachFileResponse
+import com.redbox.domain.community.attach.entity.Category
 import com.redbox.domain.community.attach.service.AttachFileService
 import com.redbox.domain.community.notice.dto.*
 import com.redbox.domain.community.notice.service.NoticeService
@@ -68,5 +70,32 @@ class NoticeController(
     @GetMapping("/notices/top5")
     fun getTop5Notices(): ResponseEntity<NoticeListWrapper> {
         return ResponseEntity.ok(noticeService.getCachedTop5Notices())
+    }
+
+    @GetMapping("/notices/{noticeId}/files/{fileId}")
+    fun downloadFile(
+        @PathVariable noticeId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(attachFileService.getFileDownloadUrl(noticeId, fileId))
+    }
+
+    // 첨부 파일
+    @PostMapping(value = ["/notices/{noticeId}/files"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun addFile(
+        @PathVariable noticeId: Long,
+        @RequestPart(value = "file") file: MultipartFile
+    ): ResponseEntity<AttachFileResponse> {
+        val response = file.let { attachFileService.addFile(Category.NOTICE, noticeId, it) }
+        return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/notices/{noticeId}/files/{fileId}")
+    fun removeFile(
+        @PathVariable noticeId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<Void> {
+        attachFileService.removeFile(Category.NOTICE, noticeId, fileId)
+        return ResponseEntity.ok().build()
     }
 }
