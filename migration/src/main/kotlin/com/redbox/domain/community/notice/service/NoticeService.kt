@@ -85,6 +85,12 @@ class NoticeService(
         }
     }
 
+    private fun deleteAttachFiles(notice: Notice) {
+        for (attachFile in notice.attachFiles) {
+            notice.id?.let { s3Service.deleteFile(attachFile.category, it, attachFile.newFilename) }
+        }
+    }
+
     fun getCachedTop5Notices(): NoticeListWrapper {
         try {
             val cachedObject = redisTemplate.opsForValue().get(TOP5_NOTICES_KEY)
@@ -210,9 +216,7 @@ class NoticeService(
     fun deleteNotice(noticeId: Long) {
         val notice = noticeRepository.findForDelete(noticeId).orElseThrow { NoticeNotFoundException() }
 
-        // TODO : 파일 삭제
-        // deleteAttachFiles(notice)
-
+        deleteAttachFiles(notice)
         noticeRepository.delete(notice)
         // 기존 캐시 삭제
         deleteNoticeAllCaches(noticeId)
