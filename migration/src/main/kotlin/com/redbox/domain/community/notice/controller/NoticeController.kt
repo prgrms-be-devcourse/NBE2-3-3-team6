@@ -89,4 +89,13 @@ class NoticeController(
         val response = file.let { attachFileService.addFile(Category.NOTICE, noticeId, it) }
         return ResponseEntity.ok(response)
     }
+
+    @DeleteMapping("/notices/{noticeId}/files/{fileId}")
+    fun removeFile(
+        @PathVariable noticeId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<Void> {
+        attachFileService.removeFile(Category.NOTICE, noticeId, fileId)
+        return ResponseEntity.ok().build()
+    }
 }
