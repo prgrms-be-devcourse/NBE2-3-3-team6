@@ -210,4 +210,8 @@ class UserService(
     ): PageResponse<FundingListResponse> {
         return fundingFacade.getMyRequests(page, size)
     }
+
+    fun getUserByEmail(email: String): User {
+        return userRepository.findByEmail(email) ?: throw UserNotFoundException()
+    }
 }
