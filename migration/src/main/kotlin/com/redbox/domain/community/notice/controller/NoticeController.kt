@@ -72,6 +72,14 @@ class NoticeController(
         return ResponseEntity.ok(noticeService.getCachedTop5Notices())
     }
 
+    @GetMapping("/notices/{noticeId}/files/{fileId}")
+    fun downloadFile(
+        @PathVariable noticeId: Long,
+        @PathVariable fileId: Long
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(attachFileService.getFileDownloadUrl(noticeId, fileId))
+    }
+
     // 첨부 파일
     @PostMapping(value = ["/notices/{noticeId}/files"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun addFile(
