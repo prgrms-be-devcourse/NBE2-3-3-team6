@@ -1,10 +1,13 @@
 package com.redbox.domain.community.notice.dto
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.redbox.domain.community.attach.dto.AttachFileResponse
 import com.redbox.domain.community.notice.entity.Notice
 import java.time.LocalDate
 
+@JsonDeserialize
 data class NoticeResponse(
     val noticeNo: Long,
     val title: String,

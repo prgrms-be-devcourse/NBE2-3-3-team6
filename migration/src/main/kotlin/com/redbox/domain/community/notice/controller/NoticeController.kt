@@ -27,6 +27,12 @@ class NoticeController(
         return ResponseEntity.ok(noticeService.getNotices(page, size))
     }
 
+    // 공지사항 상세 조회
+    @GetMapping("/notices/{noticeId}")
+    fun getNotice(@PathVariable noticeId: Long): ResponseEntity<NoticeResponse> {
+        return ResponseEntity.ok(noticeService.getNotice(noticeId))
+    }
+
     // 공지사항 등록
     @PostMapping(value = ["/notices"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createNotice(
