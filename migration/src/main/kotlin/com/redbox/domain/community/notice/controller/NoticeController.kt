@@ -3,6 +3,7 @@ package com.redbox.domain.community.notice.controller
 import com.redbox.domain.community.attach.service.AttachFileService
 import com.redbox.domain.community.notice.dto.CreateNoticeRequest
 import com.redbox.domain.community.notice.dto.NoticeListResponse
+import com.redbox.domain.community.notice.dto.NoticeListWrapper
 import com.redbox.domain.community.notice.dto.NoticeResponse
 import com.redbox.domain.community.notice.service.NoticeService
 import com.redbox.global.entity.PageResponse
@@ -48,5 +49,11 @@ class NoticeController(
             .toUri()
 
         return ResponseEntity.created(location).body<NoticeResponse>(response)
+    }
+
+    // 공지사항 top 5
+    @GetMapping("/notices/top5")
+    fun getTop5Notices(): ResponseEntity<NoticeListWrapper> {
+        return ResponseEntity.ok(noticeService.getCachedTop5Notices())
     }
 }

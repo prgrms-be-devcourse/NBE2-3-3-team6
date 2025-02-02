@@ -2,9 +2,7 @@ package com.redbox.domain.community.notice.service
 
 import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.domain.community.attach.entity.Category
-import com.redbox.domain.community.notice.dto.CreateNoticeRequest
-import com.redbox.domain.community.notice.dto.NoticeListResponse
-import com.redbox.domain.community.notice.dto.NoticeResponse
+import com.redbox.domain.community.notice.dto.*
 import com.redbox.domain.community.notice.entity.Notice
 import com.redbox.domain.community.notice.exception.NoticeNotFoundException
 import com.redbox.domain.community.notice.repository.NoticeQueryRepository
@@ -14,8 +12,8 @@ import com.redbox.global.entity.PageResponse
 import com.redbox.global.infra.s3.S3Service
 import com.redbox.global.util.FileUtils
 import io.lettuce.core.RedisConnectionException
+import jakarta.annotation.PostConstruct
 import org.hibernate.query.sqm.tree.SqmNode.log
-import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.data.redis.core.RedisTemplate
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.Duration
+import java.time.LocalDate
 
 @Service
 class NoticeService(
@@ -37,6 +36,18 @@ class NoticeService(
         private const val NOTICE_DETAIL_KEY = "notices:detail:%d"
         private const val NOTICE_PAGE_KEY = "notices:page:%d"
         private const val NOTICE_HIT_KEY = "notices:hit:%d"
+        private const val TOP5_NOTICES_KEY: String = "notices:top5"
+    }
+
+    // 서버 시작시 캐시 초기화
+    // 메인페이지 기능이기 때문에
+    @PostConstruct
+    fun initializeCache() {
+        // 기존 캐시 삭제
+        redisTemplate.delete(TOP5_NOTICES_KEY)
+
+        // 새로운 캐시 생성
+        updateTop5NoticesCache()
     }
 
     private fun deleteNoticeCaches(noticeId: Long) {
@@ -67,6 +78,47 @@ class NoticeService(
                 notice.addAttachFiles(attachFile)
             }
         }
+    }
+
+    fun getCachedTop5Notices(): NoticeListWrapper {
+        try {
+            val cachedObject = redisTemplate.opsForValue()[TOP5_NOTICES_KEY]
+
+            if (cachedObject != null) {
+                return cachedObject as NoticeListWrapper
+            }
+
+            val notices: NoticeListWrapper = getTop5NoticesFromDB()
+            redisTemplate.opsForValue()[TOP5_NOTICES_KEY, notices] = CACHE_TTL
+            return notices
+        } catch (e: RedisConnectionException) {
+            log.error("Redis 연결 실패, DB에서 직접 조회합니다", e)
+            return getTop5NoticesFromDB()
+        }
+    }
+
+    // 캐시 갱신 로직
+    private fun updateTop5NoticesCache() {
+        val top5Notices: NoticeListWrapper = getTop5NoticesFromDB()
+        try {
+            redisTemplate.opsForValue()[TOP5_NOTICES_KEY, top5Notices] = CACHE_TTL
+        } catch (e: RedisConnectionException) {
+            log.error("Redis 캐시 갱신 실패", e)
+        }
+    }
+
+    // 최신순 공지사항 5개 조회
+    // DB에서 직접 조회
+    fun getTop5NoticesFromDB(): NoticeListWrapper {
+        val notices = noticeRepository.findTop5ByOrderByCreatedAtDesc()
+            .map { notice ->
+                RecentNoticeResponse(
+                    notice.id ?: 0,
+                    notice.noticeTitle ?: "No title",
+                    notice.createdAt?.toLocalDate() ?: LocalDate.now()
+                )
+            }
+        return NoticeListWrapper(notices)
     }
 
     @Transactional(readOnly = true)
