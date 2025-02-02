@@ -56,6 +56,11 @@ class NoticeService(
         redisTemplate.delete(String.format(NOTICE_DETAIL_KEY, noticeId)) // 공지사항 게시글에 대한 캐시
     }
 
+    private fun deleteNoticeAllCaches(noticeId: Long) {
+        deleteNoticeCaches(noticeId)
+        redisTemplate.delete(String.format(NOTICE_HIT_KEY, noticeId)) // 공지사항 게시글의 조회수에 대한 캐시
+    }
+
     private fun incrementHitCount(noticeId: Long) {
         val hitKey = String.format(NOTICE_HIT_KEY, noticeId)
         redisTemplate.opsForValue().increment(hitKey, 1)
@@ -199,5 +204,17 @@ class NoticeService(
         // 기존 캐시 삭제
         deleteNoticeCaches(noticeId)
         return NoticeResponse.fromNotice(notice)
+    }
+
+    @Transactional
+    fun deleteNotice(noticeId: Long) {
+        val notice = noticeRepository.findForDelete(noticeId).orElseThrow { NoticeNotFoundException() }
+
+        // TODO : 파일 삭제
+        // deleteAttachFiles(notice)
+
+        noticeRepository.delete(notice)
+        // 기존 캐시 삭제
+        deleteNoticeAllCaches(noticeId)
     }
 }
