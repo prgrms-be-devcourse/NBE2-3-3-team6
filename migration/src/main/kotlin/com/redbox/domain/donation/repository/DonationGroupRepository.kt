@@ -49,4 +49,7 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
         receiverId: Long,
         pageable: Pageable
     ): Page<ReceptionListResponse>
+
+    @Query("SELECT SUM(d.donationAmount) FROM DonationGroup d where d.donationType = 'TO_REDBOX' and d.donationStatus = 'DONE'")
+    fun sumDonationAmountInRedbox(): Int?
 }

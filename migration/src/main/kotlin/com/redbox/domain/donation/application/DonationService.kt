@@ -43,8 +43,7 @@ class DonationService(
         saveDonationDetails(donation, donationGroupId, redCards)
 
         // redCard 소유자 변경
-        // TODO: funding 기부시 다르게 처리해야함 (전략패턴 도입 고려 중)
-        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getReceiverId(donationRequest))
+        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getCardStatus(), donation.getReceiverId(donationRequest))
 
         return donationGroup
     }
@@ -59,6 +58,7 @@ class DonationService(
         donationDetailRepository.saveAll(donationDetails)
     }
 
+
     fun getDonations(
         page: Int, size: Int
     ): PageResponse<DonationListResponse> {
@@ -71,5 +71,9 @@ class DonationService(
     ): PageResponse<ReceptionListResponse> {
         val pageable: Pageable = PageRequest.of(page - 1, size)
         return PageResponse(donationGroupRepository.findAllWithDonorNameByReceiverId(authenticationService.getCurrentUserId(), pageable))
+    }
+
+    fun getSumDonationAmountInRedbox(): Int? {
+        return donationGroupRepository.sumDonationAmountInRedbox()
     }
 }

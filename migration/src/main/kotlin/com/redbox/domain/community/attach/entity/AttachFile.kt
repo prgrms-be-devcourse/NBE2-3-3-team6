@@ -1,8 +1,8 @@
 package com.redbox.domain.community.attach.entity
 
-import com.redbox.domain.community.attach.entity.Category.*
 import com.redbox.domain.community.attach.exception.NullAttachFileException
 import com.redbox.domain.community.funding.entity.Funding
+import com.redbox.domain.community.notice.entity.Notice
 import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
 
@@ -21,10 +21,9 @@ class AttachFile (
     @JoinColumn(name = "funding_id")
     var funding: Funding? = null,
 
-    // TODO : notice 작성 시, 주석 해제
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
-    var notice: Notice? = null,*/
+    var notice: Notice? = null,
 
     var originalFilename: String,
     var newFilename: String
@@ -42,16 +41,14 @@ class AttachFile (
 
     fun belongToPost(postId: Long): Boolean {
         return when (this.category) {
-            //Category.NOTICE -> isNoticeFile(postId)
+            Category.NOTICE -> isNoticeFile(postId)
             Category.FUNDING -> isFundingFile(postId)
-            NOTICE -> TODO()
         }
     }
 
-    /*private fun isNoticeFile(postId: Long): Boolean {
-        // notice_id 값이 있다면, notice 필드를 프록시 객체로 설정하기 때문에
+    private fun isNoticeFile(postId: Long): Boolean {
         return this.notice != null
-    }*/
+    }
 
     private fun isFundingFile(postId: Long): Boolean {
         return this.funding != null

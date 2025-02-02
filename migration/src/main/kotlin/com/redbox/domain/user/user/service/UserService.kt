@@ -214,4 +214,8 @@ class UserService(
     fun getUserByEmail(email: String): User {
         return userRepository.findByEmail(email) ?: throw UserNotFoundException()
     }
+    
+    fun getActiveUserCount(): Int? {
+        return userRepository.countActiveUser()
+    }
 }

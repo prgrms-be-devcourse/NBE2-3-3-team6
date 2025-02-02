@@ -113,12 +113,17 @@ class RedcardService(
         return redcards
     }
 
-    fun updateDonatedRedcards(redcards: List<Redcard>, ownerType: OwnerType, userId: Long?) {
+    fun updateDonatedRedcards(redcards: List<Redcard>, ownerType: OwnerType, cardStatus: RedcardStatus, userId: Long?) {
 
         redcards.map {
             redcard ->
             redcard.changeOwnerType(ownerType)
             redcard.updateUser(userId)
+            redcard.changeRedcardStatus(cardStatus)
         }
+    }
+
+    fun getCountAllInRedbox(): Int? {
+        return redcardRepository.countAllInRedbox()
     }
 }

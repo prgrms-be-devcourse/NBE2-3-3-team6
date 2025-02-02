@@ -1,7 +1,9 @@
 package com.redbox.domain.community.funding.service
 
+import com.redbox.domain.community.attach.dto.AttachFileResponse
 import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.domain.community.attach.entity.Category
+import com.redbox.domain.community.attach.repository.AttachFileRepository
 import com.redbox.domain.community.funding.dto.*
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
@@ -31,6 +33,7 @@ class FundingService(
     private val likeRepository: LikeRepository,
     private val authenticationService: AuthenticationService,
     private val s3Service: S3Service,
+    private val attachFileRepository: AttachFileRepository
 ) {
     // 게시글 등록
     @Transactional
@@ -173,6 +176,12 @@ class FundingService(
         fundingRepository.save(funding)
     }
 
+
+    fun findWriter(fundingId: Long): Long {
+        val funding = fundingRepository.findById(fundingId).orElseThrow { FundingNotFoundException() } ?: throw FundingNotFoundException()
+        return funding.userId!!
+    }
+
     fun getMyRequests(
         page: Int, size: Int
     ): PageResponse<FundingListResponse> {
@@ -208,5 +217,49 @@ class FundingService(
         }
 
         fundingRepository.save(changeFunding)
+    }
+
+    @Transactional(readOnly = true)
+    fun getAdminFundingDetail(
+        fundingId: Long
+    ): AdminDetailResponse {
+        // 1. 기본 정보 조회 (게시글 + 작성자)
+        val fundingDetail = fundingRepository.findDetailById(fundingId)
+            ?: throw FundingNotFoundException()
+
+        // 2. 첨부파일 조회
+        val attachFiles = attachFileRepository.findAttachFiles(fundingId)
+            .map { AttachFileResponse(it) }
+
+        // 3. 결과 조합
+        return AdminDetailResponse(
+            id = fundingDetail.id,
+            title = fundingDetail.title,
+            author = fundingDetail.author,
+            date = fundingDetail.date,
+            startDate = fundingDetail.startDate,
+            endDate = fundingDetail.endDate,
+            targetAmount = fundingDetail.targetAmount,
+            status = fundingDetail.status,
+            views = fundingDetail.views,
+            content = fundingDetail.content,
+            attachFiles = attachFiles
+        )
+    }
+
+    fun getHotFundings(): List<AdminListResponse> {
+        return fundingRepository.findTop5FundingWithLikeCount()
+    }
+
+    fun getLikedFundings(
+        userId: Long
+    ): List<AdminListResponse> {
+        return fundingRepository.findLikedTop5FundingsByUserId(userId)
+    }
+
+    fun getCountByFundingStatus(
+        fundingStatus: FundingStatus
+    ): Int? {
+        return fundingRepository.countByFundingStatus(fundingStatus)
     }
 }

@@ -24,4 +24,8 @@ class RedcardFacade(
     fun updateRedcardStatus(request: UpdateRedcardStatusRequest, redcardId: Long) {
         redcardService.updateRedcardStatus(request, redcardId)
     }
+
+    fun getCountAllInRedbox(): Int? {
+        return redcardService.getCountAllInRedbox()
+    }
 }
