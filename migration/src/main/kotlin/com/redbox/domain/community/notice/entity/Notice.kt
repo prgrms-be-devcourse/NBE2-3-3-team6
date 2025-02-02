@@ -1,6 +1,7 @@
 package com.redbox.domain.community.notice.entity
 
 import com.redbox.domain.community.attach.entity.AttachFile
+import com.redbox.domain.community.notice.dto.UpdateNoticeRequest
 import com.redbox.domain.user.user.entity.User
 import com.redbox.global.entity.BaseEntity
 import jakarta.persistence.*
@@ -52,9 +53,8 @@ class Notice(
         attachFile.notice = null
     }
 
-    //TODO : notice update 시, 주석 해제
-    /*fun updateNotice(request: UpdateNoticeRequest) {
+    fun updateNotice(request: UpdateNoticeRequest) {
         this.noticeTitle = request.title
         this.noticeContent = request.content
-    }*/
+    }
 }
