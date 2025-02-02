@@ -8,16 +8,24 @@ import com.redbox.domain.redcard.dto.RegisterRedcardRequest
 import com.redbox.domain.redcard.dto.UpdateRedcardStatusRequest
 import com.redbox.domain.user.user.service.UserService
 import com.redbox.domain.user.user.dto.*
+import com.redbox.global.auth.service.AuthenticationService
+import com.redbox.global.auth.service.RefreshTokenService
+import com.redbox.global.auth.util.JWTUtil
 import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 
 
 @RestController
 class UserController(
     private val userService: UserService,
+    private val authenticationService: AuthenticationService,
+    private val jwtUtil: JWTUtil,
+    private val refreshTokenService: RefreshTokenService,
+    private val passwordEncoder: PasswordEncoder
 //    private val redcardService: RedcardService,
 //    private val fundingService: FundingService,
 ) {
@@ -47,6 +55,62 @@ class UserController(
     ): ResponseEntity<SignupResponse> {
         val response = userService.signup(request)
         return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/auth/login")
+    fun login(
+        @RequestBody @Valid request: LoginRequest
+    ): ResponseEntity<Void> {
+        val user = userService.getUserByEmail(request.email)
+
+        if (!passwordEncoder.matches(request.password, user.password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("error-message", "비밀번호가 틀렸습니다.")
+                .build()
+        }
+
+        // JWT Access Token & Refresh Token 생성
+        val accessToken = jwtUtil.createJwt(
+            "access",
+            user.id!!,
+            user.email,
+            user.roleType.fullRole,
+            1000 * 60 * 30
+        ) // 30분
+        val refreshToken = jwtUtil.createJwt(
+            "refresh",
+            user.id,
+            user.email,
+            user.roleType.fullRole,
+            1000 * 60 * 60 * 24 * 7
+        ) // 7일
+
+        // Refresh Token을 Redis에 저장
+        refreshTokenService.saveRefreshToken(user.email, refreshToken, 1000 * 60 * 60 * 24 * 7)
+
+        // HTTP 헤더에 Access Token과 Refresh Token 추가
+        return ResponseEntity.ok()
+            .header("Authorization", "Bearer $accessToken") // Access Token
+            .header("Refresh-Token", refreshToken) // Refresh Token
+            .build()
+    }
+
+    @PostMapping("/auth/logout")
+    fun logout(
+        @RequestHeader("Refresh-Token") refreshToken: String
+    ): ResponseEntity<String> {
+        return try {
+            // Redis에서 Refresh Token 확인
+            if (refreshTokenService.existsByRefreshToken(refreshToken)) {
+                refreshTokenService.deleteRefreshToken(refreshToken)
+                ResponseEntity.ok("로그아웃 성공")
+            } else {
+                ResponseEntity.badRequest().body("Refresh Token이 Redis에 존재하지 않습니다.")
+            }
+        } catch (e: Exception) {
+            // Refresh Token 검증 실패 처리
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 Refresh Token")
+        }
     }
 
     @PostMapping("/auth/reset-password")
