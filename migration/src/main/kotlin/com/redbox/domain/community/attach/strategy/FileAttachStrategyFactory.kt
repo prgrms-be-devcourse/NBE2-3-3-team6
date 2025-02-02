@@ -8,8 +8,8 @@ class FileAttachStrategyFactory(strategyList: List<FileAttachStrategy>) {
 
     // 전략을 저장하는 맵, Category를 키로 사용
     private val strategies: Map<Category, FileAttachStrategy> = mapOf(
-        Category.FUNDING to findStrategy(strategyList, FundingFileStrategy::class.java)
-        // Category.NOTICE to findStrategy(strategyList, NoticeFileStrategy::class.java)  // 필요 시 추가
+        Category.FUNDING to findStrategy(strategyList, FundingFileStrategy::class.java),
+        Category.NOTICE to findStrategy(strategyList, NoticeFileStrategy::class.java)
     )
 
     // 전략 리스트에서 특정 타입의 전략을 찾는 private 메서드
