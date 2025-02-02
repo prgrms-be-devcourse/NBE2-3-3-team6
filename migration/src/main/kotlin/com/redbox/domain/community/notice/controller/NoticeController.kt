@@ -1,21 +1,32 @@
 package com.redbox.domain.community.notice.controller
 
+import com.redbox.domain.community.attach.service.AttachFileService
 import com.redbox.domain.community.notice.dto.CreateNoticeRequest
+import com.redbox.domain.community.notice.dto.NoticeListResponse
 import com.redbox.domain.community.notice.dto.NoticeResponse
 import com.redbox.domain.community.notice.service.NoticeService
+import com.redbox.global.entity.PageResponse
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestPart
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @RestController
 class NoticeController(
     private val noticeService: NoticeService,
+    private val attachFileService: AttachFileService,
 ) {
+    // 공지사항 목록 조회
+    @GetMapping("/notices")
+    fun getNotices(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<PageResponse<NoticeListResponse>> {
+        return ResponseEntity.ok(noticeService.getNotices(page, size))
+    }
+
     // 공지사항 등록
     @PostMapping(value = ["/notices"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createNotice(
