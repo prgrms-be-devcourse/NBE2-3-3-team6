@@ -126,4 +126,11 @@ class RedcardService(
     fun getCountAllInRedbox(): Int? {
         return redcardRepository.countAllInRedbox()
     }
+
+    fun cancelDonateRedcards(redcards:List<Redcard>) {
+        redcards.map {
+            redcard ->
+            redcard.changeRedcardStatus(RedcardStatus.AVAILABLE)
+        }
+    }
 }

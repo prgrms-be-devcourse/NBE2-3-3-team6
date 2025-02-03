@@ -36,23 +36,26 @@ class DonationService(
 
         val redCards = redcardService.getAvailableRedcardList(donorId, donationRequest.quantity)
 
-        val donation = donationFactory.createDonation(type)
-        donation.validateSelfDonate(donorId, donationRequest)
-        // donationGroup 저장
-        val donationGroup = saveDonationGroup(donation, donorId, donationRequest)
+        val donation = donationFactory.createDonation(type, donorId, donationRequest)
+        donation.validateSelfDonate()
+
+        val donationGroup = saveDonationGroup(donation)
         val donationGroupId = requireNotNull(donationGroup.id) { "DonationGroup 저장 실패" }
 
-        // donationDetail 저장
         saveDonationDetails(donation, donationGroupId, redCards)
 
-        // redCard 소유자 변경
-        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getCardStatus(), donation.getReceiverId(donationRequest))
+        redcardService.updateDonatedRedcards(
+            redCards,
+            donation.ownerType,
+            donation.cardStatus,
+            donation.getReceiverId()
+        )
 
         return donationGroup
     }
 
-    fun saveDonationGroup(donation: Donation, donorId: Long, donationRequest: DonationRequest): DonationGroup {
-        val donationGroup = donation.createDonationGroup(donorId, donationRequest)
+    fun saveDonationGroup(donation: Donation): DonationGroup {
+        val donationGroup = donation.createDonationGroup()
         return donationGroupRepository.save(donationGroup)
     }
 
@@ -80,6 +83,13 @@ class DonationService(
 
     fun findWriterId(fundingId: Long): Long {
         return fundingService.findWriter(fundingId)
+    }
+
+    fun donationCancel(donationId: Long) {
+        val donationGroup = donationGroupRepository.findByIdOrNull(donationId)!!
+        donationGroup.donationCancel()
+        val pendingRedcards: List<Redcard> = getPendingRedcards(donationId)
+        redcardService.cancelDonateRedcards(pendingRedcards)
     }
 
     fun getDonations(
