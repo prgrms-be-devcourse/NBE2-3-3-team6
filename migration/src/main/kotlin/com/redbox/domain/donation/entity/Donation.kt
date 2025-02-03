@@ -6,11 +6,13 @@ import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 
 interface Donation {
-    fun createDonationGroup(donorId: Long, donationRequest: DonationRequest): DonationGroup
+    val donorId: Long
+    val donationType: DonationType
+    val ownerType: OwnerType
+    val cardStatus: RedcardStatus
+
+    fun createDonationGroup(): DonationGroup
     fun createDonationDetails(donationGroupId: Long, redCards: List<Redcard>): List<DonationDetail>
-    fun getDonationType(): DonationType
-    fun getOwnerType(): OwnerType
-    fun getReceiverId(donationRequest: DonationRequest): Long?
-    fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest)
-    fun getCardStatus(): RedcardStatus
+    fun getReceiverId(): Long?
+    fun validateSelfDonate()
 }

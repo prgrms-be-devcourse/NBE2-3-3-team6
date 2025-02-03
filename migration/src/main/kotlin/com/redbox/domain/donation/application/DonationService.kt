@@ -1,15 +1,18 @@
 package com.redbox.domain.donation.application
 
+import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.DonationRequest
-import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.dto.ReceptionListResponse
+import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.exception.DonationStatsException
 import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
 import com.redbox.domain.donation.repository.DonationGroupRepository
+import com.redbox.domain.redcard.entity.OwnerType
 import com.redbox.domain.redcard.entity.Redcard
+import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.service.RedcardService
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
@@ -17,6 +20,7 @@ import com.redbox.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -26,33 +30,36 @@ class DonationService(
     val donationGroupRepository: DonationGroupRepository,
     val donationDetailRepository: DonationDetailRepository,
     val redcardService: RedcardService,
-    val authenticationService: AuthenticationService
+    val authenticationService: AuthenticationService,
+    val fundingService: FundingService
 ) {
 
     @Transactional
     fun processDonation(type: String, donationRequest: DonationRequest): DonationGroup {
-        // TODO: donorId (securityHolder 에서 가져오기)
-        var donorId: Long = 1L
+        val donorId = authenticationService.getCurrentUserId()
 
         val redCards = redcardService.getAvailableRedcardList(donorId, donationRequest.quantity)
 
-        val donation = donationFactory.createDonation(type)
-        donation.validateSelfDonate(donorId, donationRequest)
-        // donationGroup 저장
-        val donationGroup = saveDonationGroup(donation, donorId, donationRequest)
+        val donation = donationFactory.createDonation(type, donorId, donationRequest)
+        donation.validateSelfDonate()
+
+        val donationGroup = saveDonationGroup(donation)
         val donationGroupId = requireNotNull(donationGroup.id) { "DonationGroup 저장 실패" }
 
-        // donationDetail 저장
         saveDonationDetails(donation, donationGroupId, redCards)
 
-        // redCard 소유자 변경
-        redcardService.updateDonatedRedcards(redCards, donation.getOwnerType(), donation.getCardStatus(), donation.getReceiverId(donationRequest))
+        redcardService.updateDonatedRedcards(
+            redCards,
+            donation.ownerType,
+            donation.cardStatus,
+            donation.getReceiverId()
+        )
 
         return donationGroup
     }
 
-    fun saveDonationGroup(donation: Donation, donorId: Long, donationRequest: DonationRequest): DonationGroup {
-        val donationGroup = donation.createDonationGroup(donorId, donationRequest)
+    fun saveDonationGroup(donation: Donation): DonationGroup {
+        val donationGroup = donation.createDonationGroup()
         return donationGroupRepository.save(donationGroup)
     }
 
@@ -61,6 +68,33 @@ class DonationService(
         donationDetailRepository.saveAll(donationDetails)
     }
 
+    fun donationConfirm(donationId: Long) {
+        val donationGroup = donationGroupRepository.findByIdOrNull(donationId)!!
+        donationGroup.donationConfirm()
+        val pendingRedcards: List<Redcard> = getPendingRedcards(donationId)
+        val receiverId = findWriterId(donationGroup.receiverId)
+        redCardsConfirm(pendingRedcards, receiverId)
+    }
+
+    fun getPendingRedcards(donationId: Long): List<Redcard> {
+        val donationDetails = donationDetailRepository.findAllByDonationGroupId(donationId)
+        return donationDetails.map { redcardService.getRedcardById(it.redcardId) }
+    }
+
+    fun redCardsConfirm(pendingRedcards: List<Redcard>, receiverId: Long) {
+        redcardService.updateDonatedRedcards(pendingRedcards, OwnerType.USER, RedcardStatus.AVAILABLE, receiverId)
+    }
+
+    fun findWriterId(fundingId: Long): Long {
+        return fundingService.findWriter(fundingId)
+    }
+
+    fun donationCancel(donationId: Long) {
+        val donationGroup = donationGroupRepository.findByIdOrNull(donationId)!!
+        donationGroup.donationCancel()
+        val pendingRedcards: List<Redcard> = getPendingRedcards(donationId)
+        redcardService.cancelDonateRedcards(pendingRedcards)
+    }
 
     fun getDonations(
         page: Int, size: Int
