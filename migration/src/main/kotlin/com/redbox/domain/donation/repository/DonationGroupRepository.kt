@@ -3,11 +3,14 @@ package com.redbox.domain.donation.repository
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.DonationGroup
+import io.lettuce.core.dynamic.annotation.Param
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
+import java.util.*
 
 @Repository
 interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
@@ -52,4 +55,17 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
 
     @Query("SELECT SUM(d.donationAmount) FROM DonationGroup d where d.donationType = 'TO_REDBOX' and d.donationStatus = 'DONE'")
     fun sumDonationAmountInRedbox(): Int?
+
+    @Query("SELECT SUM(d.donationAmount) FROM DonationGroup d WHERE d.donorId = :donorId AND d.donationStatus = 'DONE'")
+    fun sumDonationAmountByDonorId(@Param("donorId") donorId: Long): Int?
+
+    @Query("SELECT COUNT(DISTINCT d.receiverId) FROM DonationGroup d WHERE d.donorId = :donorId AND d.receiverId != :redboxId AND d.donationStatus = 'DONE'")
+    fun countDistinctReceiverIdByDonorIdAndReceiverIdNot(
+        @Param("donorId") donorId: Long,
+        @Param("redboxId") redboxId: Long
+    ): Int?
+
+    @Query("SELECT MAX(d.donationDate) FROM DonationGroup d WHERE d.donorId = :userId")
+    fun findLastDonationDateByDonorId(@Param("userId") userId: Long): Optional<LocalDate>
+
 }
