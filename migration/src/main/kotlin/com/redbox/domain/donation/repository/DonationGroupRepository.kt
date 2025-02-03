@@ -3,6 +3,7 @@ package com.redbox.domain.donation.repository
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.DonationGroup
+import com.redbox.domain.donation.entity.DonationType
 import io.lettuce.core.dynamic.annotation.Param
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -68,4 +69,5 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
     @Query("SELECT MAX(d.donationDate) FROM DonationGroup d WHERE d.donorId = :userId")
     fun findLastDonationDateByDonorId(@Param("userId") userId: Long): Optional<LocalDate>
 
+    fun findAllByReceiverIdAndDonationType(receiverId: Long, donationType: DonationType = DonationType.FUNDING): List<DonationGroup>
 }

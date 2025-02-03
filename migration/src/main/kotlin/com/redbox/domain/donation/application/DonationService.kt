@@ -7,7 +7,6 @@ import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.exception.DonationStatsException
-import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
 import com.redbox.domain.donation.repository.DonationGroupRepository
 import com.redbox.domain.redcard.entity.OwnerType
@@ -68,12 +67,15 @@ class DonationService(
         donationDetailRepository.saveAll(donationDetails)
     }
 
-    fun donationConfirm(donationId: Long) {
-        val donationGroup = donationGroupRepository.findByIdOrNull(donationId)!!
-        donationGroup.donationConfirm()
-        val pendingRedcards: List<Redcard> = getPendingRedcards(donationId)
-        val receiverId = findWriterId(donationGroup.receiverId)
-        redCardsConfirm(pendingRedcards, receiverId)
+    fun donationConfirm(fundingId: Long, receiverId: Long) {
+        val donationGroupList: List<DonationGroup> =
+            donationGroupRepository.findAllByReceiverIdAndDonationType(fundingId)
+
+        for (donationGroup in donationGroupList) {
+            donationGroup.donationConfirm()
+            val pendingRedcards: List<Redcard> = getPendingRedcards(donationGroup.id!!)
+            redCardsConfirm(pendingRedcards, receiverId)
+        }
     }
 
     fun getPendingRedcards(donationId: Long): List<Redcard> {
@@ -85,9 +87,6 @@ class DonationService(
         redcardService.updateDonatedRedcards(pendingRedcards, OwnerType.USER, RedcardStatus.AVAILABLE, receiverId)
     }
 
-    fun findWriterId(fundingId: Long): Long {
-        return fundingService.findWriter(fundingId)
-    }
 
     fun donationCancel(donationId: Long) {
         val donationGroup = donationGroupRepository.findByIdOrNull(donationId)!!

@@ -4,7 +4,14 @@ import com.redbox.domain.community.attach.dto.AttachFileResponse
 import com.redbox.domain.community.attach.entity.AttachFile
 import com.redbox.domain.community.attach.entity.Category
 import com.redbox.domain.community.attach.repository.AttachFileRepository
-import com.redbox.domain.community.funding.dto.*
+import com.redbox.domain.community.funding.dto.AdminApproveRequest
+import com.redbox.domain.community.funding.dto.AdminDetailResponse
+import com.redbox.domain.community.funding.dto.AdminListResponse
+import com.redbox.domain.community.funding.dto.FundingDetailResponse
+import com.redbox.domain.community.funding.dto.FundingFilter
+import com.redbox.domain.community.funding.dto.FundingListResponse
+import com.redbox.domain.community.funding.dto.FundingWriteRequest
+import com.redbox.domain.community.funding.dto.ListResponse
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
 import com.redbox.domain.community.funding.entity.Like
@@ -13,6 +20,7 @@ import com.redbox.domain.community.funding.exception.FundingNotFoundException
 import com.redbox.domain.community.funding.exception.InvalidApproveStatusException
 import com.redbox.domain.community.funding.exception.UnauthorizedAccessException
 import com.redbox.domain.community.funding.repository.LikeRepository
+import com.redbox.domain.donation.facade.DonationFacade
 import com.redbox.domain.funding.repository.FundingRepository
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
@@ -23,9 +31,11 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDate
 
 @Service
 class FundingService(
@@ -33,7 +43,8 @@ class FundingService(
     private val likeRepository: LikeRepository,
     private val authenticationService: AuthenticationService,
     private val s3Service: S3Service,
-    private val attachFileRepository: AttachFileRepository
+    private val attachFileRepository: AttachFileRepository,
+    private val donationFacade: DonationFacade
 ) {
     // 게시글 등록
     @Transactional
@@ -261,5 +272,20 @@ class FundingService(
         fundingStatus: FundingStatus
     ): Int? {
         return fundingRepository.countByFundingStatus(fundingStatus)
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    fun updateExpiredFunding() {
+        val today = LocalDate.now()
+        val expiredFundingList: List<Funding> =
+            fundingRepository.findByDonationEndDateBeforeAndProgressNot(today, FundingStatus.EXPIRED)
+
+        if (expiredFundingList.isNotEmpty()) {
+            for (funding in expiredFundingList) {
+                donationFacade.donationConfirm(funding.fundingId!!, funding.userId!!)
+                funding.expired()
+            }
+        }
     }
 }

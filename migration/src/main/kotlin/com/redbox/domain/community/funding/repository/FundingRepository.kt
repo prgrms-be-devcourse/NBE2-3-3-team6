@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDate
 
 interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCustom {
 
@@ -124,4 +125,5 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
     @Query("SELECT COUNT(r) FROM Funding r WHERE r.userId = :userId AND r.fundingStatus = 'APPROVE' AND r.progress = 'IN_PROGRESS'")
     fun countInProgressFundingsByUserId(@Param("userId") userId: Long): Int
 
+    fun findByDonationEndDateBeforeAndProgressNot(date: LocalDate, progress: FundingStatus) : List<Funding>
 }
