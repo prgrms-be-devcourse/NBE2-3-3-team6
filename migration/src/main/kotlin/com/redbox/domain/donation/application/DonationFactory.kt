@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component
 import java.util.Locale
 
 @Component
-class DonationFactory(val fundingService: FundingService) {
+class DonationFactory() {
     fun createDonation(type: String, donorId: Long, donationRequest: DonationRequest): Donation {
         return when (type.lowercase(Locale.getDefault())) {
             "user" -> UserDonation(donorId, donationRequest)
             "redbox" -> RedboxDonation(donorId, donationRequest)
-            "request" -> FundingDonation(donorId, donationRequest, fundingService.findWriter(donationRequest.receiveId))
+            "request" -> FundingDonation(donorId, donationRequest)
             else -> throw InvalidDonationTypeException()
         }
     }
