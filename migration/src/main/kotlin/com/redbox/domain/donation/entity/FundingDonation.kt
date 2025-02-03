@@ -7,7 +7,7 @@ import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 import java.time.LocalDate
 
-class FundingDonation(override val donorId: Long, val donationRequest: DonationRequest, val writerId: Long) : Donation {
+class FundingDonation(override val donorId: Long, val donationRequest: DonationRequest) : Donation {
     override val donationType = DonationType.FUNDING
     override val ownerType = OwnerType.USER
     override val cardStatus = RedcardStatus.PENDING
@@ -38,8 +38,8 @@ class FundingDonation(override val donorId: Long, val donationRequest: DonationR
     }
 
     override fun validateSelfDonate() {
-        if (donorId == writerId) {
-            throw SelfDonationException()
-        }
+//        if (donorId == writerId) {
+//            throw SelfDonationException()
+//        }
     }
 }

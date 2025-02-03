@@ -30,7 +30,6 @@ class DonationService(
     val donationDetailRepository: DonationDetailRepository,
     val redcardService: RedcardService,
     val authenticationService: AuthenticationService,
-    val fundingService: FundingService
 ) {
 
     @Transactional
