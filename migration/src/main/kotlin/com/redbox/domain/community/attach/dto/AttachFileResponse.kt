@@ -1,11 +1,12 @@
 package com.redbox.domain.community.attach.dto
 
-import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.redbox.domain.community.attach.entity.AttachFile
 
 @JsonDeserialize
-data class AttachFileResponse @JsonCreator constructor(
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+data class AttachFileResponse(
     var fileNo: Long? = null,
     var originFilename: String? = null,
     var filename: String? = null

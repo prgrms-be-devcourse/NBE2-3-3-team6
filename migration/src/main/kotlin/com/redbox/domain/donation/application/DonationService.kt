@@ -6,6 +6,8 @@ import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.dto.ReceptionListResponse
 import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.DonationGroup
+import com.redbox.domain.donation.exception.DonationStatsException
+import com.redbox.domain.donation.exception.SelfDonationException
 import com.redbox.domain.donation.repository.DonationDetailRepository
 import com.redbox.domain.donation.repository.DonationGroupRepository
 import com.redbox.domain.redcard.entity.OwnerType
@@ -14,11 +16,13 @@ import com.redbox.domain.redcard.entity.RedcardStatus
 import com.redbox.domain.redcard.service.RedcardService
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
+import com.redbox.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class DonationService(
@@ -108,5 +112,28 @@ class DonationService(
 
     fun getSumDonationAmountInRedbox(): Int? {
         return donationGroupRepository.sumDonationAmountInRedbox()
+    }
+
+    fun getTotalDonatedCards(userId: Long): Int {
+        return try {
+            val total = donationGroupRepository.sumDonationAmountByDonorId(userId)
+            total ?: 0 // null이면 0 반환
+        } catch (e: Exception) {
+            throw DonationStatsException(ErrorCode.STATS_CALCULATION_FAILED)
+        }
+    }
+
+    fun getPatientsHelped(userId: Long): Int {
+        return try {
+            val patients = donationGroupRepository.countDistinctReceiverIdByDonorIdAndReceiverIdNot(userId, 0L)
+            patients ?: 0 // null이면 0 반환
+        } catch (e: Exception) {
+            throw DonationStatsException(ErrorCode.STATS_CALCULATION_FAILED)
+        }
+    }
+
+    // 최근 기부 일자 조회
+    fun getLastDonationDate(userId: Long): LocalDate? {
+        return donationGroupRepository.findLastDonationDateByDonorId(userId).orElse(null)
     }
 }

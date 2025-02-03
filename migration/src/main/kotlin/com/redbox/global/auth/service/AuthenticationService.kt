@@ -1,9 +1,9 @@
 package com.redbox.global.auth.service
 
+import com.redbox.domain.auth.dto.CustomUserDetails
 import com.redbox.domain.community.funding.exception.UserNotFoundException
 import com.redbox.domain.user.user.entity.User
 import com.redbox.domain.user.user.repository.UserRepository
-import com.redbox.global.auth.dto.CustomUserDetails
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
