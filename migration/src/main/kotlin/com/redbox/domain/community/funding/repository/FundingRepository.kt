@@ -5,6 +5,7 @@ import com.redbox.domain.community.funding.dto.AdminListResponse
 import com.redbox.domain.community.funding.dto.FundingListResponse
 import com.redbox.domain.community.funding.entity.Funding
 import com.redbox.domain.community.funding.entity.FundingStatus
+import io.lettuce.core.dynamic.annotation.Param
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -119,4 +120,8 @@ interface FundingRepository : JpaRepository<Funding, Long>, FundingRepositoryCus
 
     @Query("SELECT COUNT(f) FROM Funding f WHERE f.fundingStatus = :fundingStatus")
     fun countByFundingStatus(fundingStatus: FundingStatus): Int?
+
+    @Query("SELECT COUNT(r) FROM Funding r WHERE r.userId = :userId AND r.fundingStatus = 'APPROVE' AND r.progress = 'IN_PROGRESS'")
+    fun countInProgressFundingsByUserId(@Param("userId") userId: Long): Int
+
 }
