@@ -6,16 +6,19 @@ import com.redbox.domain.redcard.entity.Redcard
 import com.redbox.domain.redcard.entity.RedcardStatus
 import java.time.LocalDate
 
-class RedboxDonation() : Donation {
+class RedboxDonation(override val donorId: Long, val donationRequest: DonationRequest) : Donation {
+    override val donationType = DonationType.REDBOX
+    override val ownerType = OwnerType.REDBOX
+    override val cardStatus = RedcardStatus.AVAILABLE
 
-    override fun createDonationGroup(donorId: Long, donationRequest: DonationRequest): DonationGroup {
+    override fun createDonationGroup(): DonationGroup {
         return DonationGroup(
             donorId,
             donationRequest.receiveId,
             donationRequest.quantity,
             LocalDate.now(),
             donationRequest.comment,
-            DonationType.REDBOX,
+            donationType,
             DonationStatus.DONE
         )
     }
@@ -29,22 +32,11 @@ class RedboxDonation() : Donation {
         }
     }
 
-    override fun getDonationType(): DonationType {
-        return DonationType.REDBOX
+    override fun getReceiverId(): Long? {
+        return null
     }
 
-    override fun getOwnerType(): OwnerType {
-        return OwnerType.REDBOX
-    }
+    override fun validateSelfDonate() {
 
-    override fun getReceiverId(donationRequest: DonationRequest): Long? {
-        return null;
-    }
-
-    override fun validateSelfDonate(donorId: Long, donationRequest: DonationRequest) {
-    }
-
-    override fun getCardStatus(): RedcardStatus {
-        return RedcardStatus.AVAILABLE
     }
 }

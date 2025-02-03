@@ -1,5 +1,6 @@
 package com.redbox.domain.donation.application
 
+import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.FundingDonation
@@ -10,13 +11,12 @@ import org.springframework.stereotype.Component
 import java.util.Locale
 
 @Component
-class DonationFactory {
-
-    fun createDonation(type: String): Donation {
+class DonationFactory(val fundingService: FundingService) {
+    fun createDonation(type: String, donorId: Long, donationRequest: DonationRequest): Donation {
         return when (type.lowercase(Locale.getDefault())) {
-            "user" -> UserDonation()
-            "redbox" -> RedboxDonation()
-            "request" -> FundingDonation()
+            "user" -> UserDonation(donorId, donationRequest)
+            "redbox" -> RedboxDonation(donorId, donationRequest)
+            "request" -> FundingDonation(donorId, donationRequest, fundingService.findWriter(donationRequest.receiveId))
             else -> throw InvalidDonationTypeException()
         }
     }
