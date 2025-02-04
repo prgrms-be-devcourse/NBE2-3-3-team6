@@ -73,5 +73,20 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
     fun findAllByReceiverIdAndDonationType(receiverId: Long, donationType: DonationType = DonationType.FUNDING): List<DonationGroup>
 
     //TODO: Query 작성
+    @Query("""
+    SELECT 
+        RANK() OVER (ORDER BY SUM(dg.donationAmount) DESC) as rank,
+        dg.donorId as donorId,
+        u.name as name,
+        SUM(dg.donationAmount) as totalDonationAmount
+    FROM DonationGroup dg
+    LEFT JOIN User u ON dg.donorId = u.id
+    WHERE dg.donorId != 0
+    AND MONTH(dg.donationDate) = MONTH(CURRENT_DATE)
+    AND YEAR(dg.donationDate) = YEAR(CURRENT_DATE)
+    GROUP BY dg.donorId, u.name
+    ORDER BY SUM(dg.donationAmount) DESC
+    LIMIT 5
+    """)
     fun findTop5DonorsOfTheMonth(): List<Top5DonorResponse>
 }

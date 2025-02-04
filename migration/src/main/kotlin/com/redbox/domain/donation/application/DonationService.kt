@@ -74,7 +74,7 @@ class DonationService(
     }
 
     fun updateTop5DonorsCache() {
-        val top5Donors: Top5DonorWrapper = getTop5DonorsFromDB();
+        val top5Donors: Top5DonorWrapper = getTop5DonorsFromDB()
         try {
             redisTemplate.opsForValue().set(TOP5_DONOR_KEY, top5Donors, CACHE_TTL)
         } catch (e: RedisConnectionException) {
