@@ -2,6 +2,7 @@ package com.redbox.domain.donation.repository
 
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.ReceptionListResponse
+import com.redbox.domain.donation.dto.Top5DonorResponse
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.entity.DonationType
 import io.lettuce.core.dynamic.annotation.Param
@@ -70,4 +71,7 @@ interface DonationGroupRepository : JpaRepository<DonationGroup, Long> {
     fun findLastDonationDateByDonorId(@Param("userId") userId: Long): Optional<LocalDate>
 
     fun findAllByReceiverIdAndDonationType(receiverId: Long, donationType: DonationType = DonationType.FUNDING): List<DonationGroup>
+
+    //TODO: Query 작성
+    fun findTop5DonorsOfTheMonth(): List<Top5DonorResponse>
 }
