@@ -21,13 +21,13 @@ class ArticleController(
     private val articleService: ArticleService
 ) {
 
-//    @GetMapping("/articles")
-//    fun getArticles(
-//        @RequestParam(defaultValue = "1") page: Int,
-//        @RequestParam(defaultValue = "10") size: Int
-//    ): ResponseEntity<PageResponse<ArticleResponse>> {
-//        return ResponseEntity.ok(articleService.getArticles(page, size))
-//    }
+    @GetMapping("/articles")
+    fun getArticles(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<PageResponse<ArticleResponse>> {
+        return ResponseEntity.ok(articleService.getArticles(page, size))
+    }
 //
 //    @PostMapping("/articles")
 //    fun createArticle(

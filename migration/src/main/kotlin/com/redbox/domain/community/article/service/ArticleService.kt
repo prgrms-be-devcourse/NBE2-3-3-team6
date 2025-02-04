@@ -22,7 +22,7 @@ import java.time.Duration
 class ArticleService(
     private val authenticationService: AuthenticationService,
     private val articleRepository: ArticleRepository,
-    private val redisTemplate: RedisTemplate<String, String>,
+    private val redisTemplate: RedisTemplate<String, Any>,
 ) {
 
     companion object {
@@ -32,37 +32,36 @@ class ArticleService(
 
     @Transactional(readOnly = true)
     fun getArticles(page: Int, size: Int): PageResponse<ArticleResponse> {
-        val pageable: Pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
+        val pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending())
 
+        // 첫페이지만 캐싱
         if (page == 1) {
             val cacheKey = String.format(ARTICLE_PAGE_KEY, page)
-            try {
-                val cached = redisTemplate.opsForValue().get(cacheKey)
-                //TODO: 여기 손좀 봐주십쇼..
-
-//                if (cached is PageResponse<*>) {
-//                    return cached as PageResponse<ArticleResponse>
-//                }
-//
-//                val response = PageResponse(
-//                    articleRepository.findAll(pageable).map { ArticleResponse.fromArticle(it) })
-//
-//                redisTemplate.opsForValue().set(cacheKey, response, CACHE_TTL)
-//
-//                return response
+            return try {
+                redisTemplate.opsForValue().get(cacheKey)?.let { cached ->
+                    cached as PageResponse<ArticleResponse>
+                } ?: run {
+                    val response = PageResponse(
+                        articleRepository.findAll(pageable).map { ArticleResponse.fromArticle(it) }
+                    )
+                    redisTemplate.opsForValue().set(cacheKey, response, CACHE_TTL)
+                    response
+                }
             } catch (e: RedisConnectionException) {
                 log.error("Redis 연결 실패", e)
+                PageResponse(articleRepository.findAll(pageable).map { ArticleResponse.fromArticle(it) })
             }
         }
 
+        // 첫페이지 외에는 DB로 가져옴
         return PageResponse(articleRepository.findAll(pageable).map { ArticleResponse.fromArticle(it) })
     }
 
     @Transactional
     fun createArticle(request: CreateArticleRequest) {
         articleRepository.save(Article(null, authenticationService.getCurrentUserId(), request.subject!!,  request.url!!, request.source!!))
-//        //TODO: 기존 캐시 삭제
-    //        redisTemplate.delete()
+        //TODO: 기존 캐시 삭제
+        redisTemplate.delete(String.format(ARTICLE_PAGE_KEY, 1));
     }
 
     @Transactional
@@ -70,6 +69,7 @@ class ArticleService(
         val article = articleRepository.findById(articleId).orElseThrow {ArticleNotFoundException()}
         article.update(request)
         //TODO: 기존 캐시 삭제
+        redisTemplate.delete(String.format(ARTICLE_PAGE_KEY, 1));
     }
 
     @Transactional
@@ -78,5 +78,6 @@ class ArticleService(
 
         articleRepository.delete(article)
         //TODO: 기존 캐시 삭제
+        redisTemplate.delete(String.format(ARTICLE_PAGE_KEY, 1));
     }
 }

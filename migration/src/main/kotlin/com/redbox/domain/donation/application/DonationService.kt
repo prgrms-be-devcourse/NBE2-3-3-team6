@@ -1,9 +1,9 @@
 package com.redbox.domain.donation.application
 
-import com.redbox.domain.community.funding.service.FundingService
 import com.redbox.domain.donation.dto.DonationListResponse
 import com.redbox.domain.donation.dto.DonationRequest
 import com.redbox.domain.donation.dto.ReceptionListResponse
+import com.redbox.domain.donation.dto.Top5DonorWrapper
 import com.redbox.domain.donation.entity.Donation
 import com.redbox.domain.donation.entity.DonationGroup
 import com.redbox.domain.donation.exception.DonationStatsException
@@ -16,11 +16,17 @@ import com.redbox.domain.redcard.service.RedcardService
 import com.redbox.global.auth.service.AuthenticationService
 import com.redbox.global.entity.PageResponse
 import com.redbox.global.exception.ErrorCode
+import io.lettuce.core.RedisConnectionException
+import jakarta.annotation.PostConstruct
 import jakarta.transaction.Transactional
+import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.LocalDate
 
 @Service
@@ -30,7 +36,55 @@ class DonationService(
     val donationDetailRepository: DonationDetailRepository,
     val redcardService: RedcardService,
     val authenticationService: AuthenticationService,
+    val redisTemplate: RedisTemplate<String, Any>,
 ) {
+    companion object {
+        private val CACHE_TTL: Duration = Duration.ofMinutes(30)
+        private const val TOP5_DONOR_KEY = "donors:top5"
+    }
+
+    // 서버 시작시 캐시 초기화
+    // 메인페이지 기능이기 때문에
+    @PostConstruct
+    fun initializeCache() {
+        redisTemplate.delete(TOP5_DONOR_KEY)
+        updateTop5DonorsCache()
+    }
+
+    @Scheduled(cron = "0 0/30 0 * * *")
+    fun run() {
+        updateTop5DonorsCache()
+    }
+
+    fun getCachedTop5Donors() : Top5DonorWrapper {
+        try {
+            val cachedObject = redisTemplate.opsForValue().get(TOP5_DONOR_KEY)
+
+            if (cachedObject != null) {
+                return cachedObject as? Top5DonorWrapper ?: getTop5DonorsFromDB()
+            }
+
+            val donors: Top5DonorWrapper = getTop5DonorsFromDB()
+            redisTemplate.opsForValue().set(TOP5_DONOR_KEY, donors, CACHE_TTL)
+            return donors
+        } catch(e: RedisConnectionException) {
+            log.error("Redis 연결 실패, DB에서 직접 조회합니다", e)
+            return getTop5DonorsFromDB()
+        }
+    }
+
+    fun updateTop5DonorsCache() {
+        val top5Donors: Top5DonorWrapper = getTop5DonorsFromDB()
+        try {
+            redisTemplate.opsForValue().set(TOP5_DONOR_KEY, top5Donors, CACHE_TTL)
+        } catch (e: RedisConnectionException) {
+            log.error("Redis 캐시 갱신 실패", e)
+        }
+    }
+
+    fun getTop5DonorsFromDB(): Top5DonorWrapper {
+        return Top5DonorWrapper(donationGroupRepository.findTop5DonorsOfTheMonth())
+    }
 
     @Transactional
     fun processDonation(type: String, donationRequest: DonationRequest): DonationGroup {

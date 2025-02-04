@@ -39,6 +39,7 @@ class SecurityConfig(
 //                    .requestMatchers("/auth/**").permitAll()
                     .anyRequest().permitAll()
 //                    .anyRequest().authenticated() // ✅ 나머지는 인증 필요
+
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
             .sessionManagement { it.disable() } // ✅ Stateless 방식
