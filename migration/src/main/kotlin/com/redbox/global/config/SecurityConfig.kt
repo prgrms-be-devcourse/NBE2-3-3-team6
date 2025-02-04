@@ -34,6 +34,7 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/articles").permitAll()
                     .anyRequest().authenticated() // ✅ 나머지는 인증 필요
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
